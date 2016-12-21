@@ -31,7 +31,7 @@
 #include "settings.h"
 
 #include <QtWidgets>
-#include <QtWebKitWidgets>
+//#include <QtWebKitWidgets>
 #include <QQuickView>
 #include <QQuickItem>
 #include <QQmlEngine>

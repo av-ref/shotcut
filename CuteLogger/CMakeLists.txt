@@ -1,9 +1,5 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-PROJECT(CuteLogger)
 
-FIND_PACKAGE(Qt4 COMPONENTS QtCore REQUIRED)
-INCLUDE(${QT_USE_FILE})
 
 ADD_DEFINITIONS(-DCUTELOGGER_LIBRARY)
 
@@ -37,5 +33,5 @@ ENDIF(WIN32)
 SET(library_target Logger)
 
 ADD_LIBRARY(${library_target} SHARED ${sources} ${includes})
-TARGET_LINK_LIBRARIES(${library_target} ${QT_LIBRARIES})
-INSTALL(TARGETS ${library_target} DESTINATION lib)
+TARGET_LINK_LIBRARIES(${library_target} Qt5::Widgets Qt5::Core Qt5::Gui)
+#INSTALL(TARGETS ${library_target} DESTINATION lib)

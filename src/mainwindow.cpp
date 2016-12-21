@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2011-2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -55,7 +55,7 @@
 #include "controllers/scopecontroller.h"
 #include "docks/filtersdock.h"
 #include "dialogs/customprofiledialog.h"
-#include "htmleditor/htmleditor.h"
+//#include "htmleditor/htmleditor.h"
 #include "settings.h"
 #include "leapnetworklistener.h"
 #include "database.h"
@@ -1808,7 +1808,7 @@ void MainWindow::dropEvent(QDropEvent *event)
 void MainWindow::closeEvent(QCloseEvent* event)
 {
     if (continueJobsRunning() && continueModified()) {
-        if (!m_htmlEditor || m_htmlEditor->close()) {
+//        if (!m_htmlEditor || m_htmlEditor->close()) {
             writeSettings();
             QThreadPool::globalInstance()->clear();
             AudioLevelsTask::closeAll();
@@ -1816,7 +1816,7 @@ void MainWindow::closeEvent(QCloseEvent* event)
             emit aboutToShutDown();
             QApplication::exit(m_exitCode);
             return;
-        }
+//        }
     }
     event->ignore();
 }
@@ -2392,35 +2392,35 @@ void MainWindow::onGpuNotSupported()
         tr("GPU Processing is not supported"));
 }
 
-void MainWindow::editHTML(const QString &fileName)
-{
-    bool isNew = !m_htmlEditor;
-    if (isNew) {
-        m_htmlEditor.reset(new HtmlEditor);
-        m_htmlEditor->setWindowIcon(windowIcon());
-    }
-    m_htmlEditor->load(fileName);
-    m_htmlEditor->show();
-    m_htmlEditor->raise();
-    if (Settings.playerZoom() >= 1.0f) {
-        m_htmlEditor->changeZoom(100 * m_player->videoSize().width() / MLT.profile().width());
-        m_htmlEditor->resizeWebView(m_player->videoSize().width(), m_player->videoSize().height());
-    } else {
-        m_htmlEditor->changeZoom(100 * MLT.displayWidth() / MLT.profile().width());
-        m_htmlEditor->resizeWebView(MLT.displayWidth(), MLT.displayHeight());
-    }
-    if (isNew) {
-        // Center the new window over the main window.
-        QPoint point = pos();
-        QPoint halfSize(width(), height());
-        halfSize /= 2;
-        point += halfSize;
-        halfSize = QPoint(m_htmlEditor->width(), m_htmlEditor->height());
-        halfSize /= 2;
-        point -= halfSize;
-        m_htmlEditor->move(point);
-    }
-}
+//void MainWindow::editHTML(const QString &fileName)
+//{
+//    bool isNew = !m_htmlEditor;
+//    if (isNew) {
+//        m_htmlEditor.reset(new HtmlEditor);
+//        m_htmlEditor->setWindowIcon(windowIcon());
+//    }
+//    m_htmlEditor->load(fileName);
+//    m_htmlEditor->show();
+//    m_htmlEditor->raise();
+//    if (Settings.playerZoom() >= 1.0f) {
+//        m_htmlEditor->changeZoom(100 * m_player->videoSize().width() / MLT.profile().width());
+//        m_htmlEditor->resizeWebView(m_player->videoSize().width(), m_player->videoSize().height());
+//    } else {
+//        m_htmlEditor->changeZoom(100 * MLT.displayWidth() / MLT.profile().width());
+//        m_htmlEditor->resizeWebView(MLT.displayWidth(), MLT.displayHeight());
+//    }
+//    if (isNew) {
+//        // Center the new window over the main window.
+//        QPoint point = pos();
+//        QPoint halfSize(width(), height());
+//        halfSize /= 2;
+//        point += halfSize;
+//        halfSize = QPoint(m_htmlEditor->width(), m_htmlEditor->height());
+//        halfSize /= 2;
+//        point -= halfSize;
+//        m_htmlEditor->move(point);
+//    }
+//}
 
 void MainWindow::stepLeftOneFrame()
 {

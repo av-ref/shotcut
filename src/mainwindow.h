@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2011-2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -46,7 +46,7 @@ class QActionGroup;
 class FilterController;
 class ScopeController;
 class FiltersDock;
-class HtmlEditor;
+//class HtmlEditor;
 class TimelineDock;
 class AutoSaveFile;
 class QNetworkReply;
@@ -66,7 +66,7 @@ public:
     static void changeTheme(const QString& theme);
     PlaylistDock* playlistDock() const { return m_playlistDock; }
     FilterController* filterController() const { return m_filterController; }
-    HtmlEditor* htmlEditor() const { return m_htmlEditor.data(); }
+//    HtmlEditor* htmlEditor() const { return m_htmlEditor.data(); }
     Mlt::Playlist* playlist() const;
     Mlt::Producer* multitrack() const;
     bool isMultitrackValid() const;
@@ -135,7 +135,7 @@ private:
     QStringList m_multipleFiles;
     bool m_isPlaylistLoaded;
     QActionGroup* m_languagesGroup;
-    QScopedPointer<HtmlEditor> m_htmlEditor;
+//    QScopedPointer<HtmlEditor> m_htmlEditor;
     QSharedPointer<AutoSaveFile> m_autosaveFile;
     QMutex m_autosaveMutex;
     QTimer m_autosaveTimer;
@@ -163,7 +163,7 @@ public slots:
     QWidget* loadProducerWidget(Mlt::Producer* producer);
     void onProducerOpened();
     void onGpuNotSupported();
-    void editHTML(const QString& fileName);
+//    void editHTML(const QString& fileName);
     void stepLeftOneFrame();
     void stepRightOneFrame();
     void stepLeftOneSecond();

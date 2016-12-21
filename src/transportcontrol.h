@@ -24,6 +24,8 @@
 class TransportControllable : public QObject
 {
     Q_OBJECT
+public:
+    ~TransportControllable();
 public slots:
     virtual void play(double speed = 1.0) = 0;
     virtual void pause() = 0;

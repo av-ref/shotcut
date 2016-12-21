@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "config.h"
 #include <QtWidgets>
 #include <QtGlobal>
 #include "mainwindow.h"
@@ -27,6 +28,7 @@
 #include <QProcess>
 #include <QCommandLineParser>
 #include <framework/mlt_log.h>
+
 
 #ifdef Q_OS_WIN
 #ifdef QT_DEBUG
