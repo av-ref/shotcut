@@ -1,5 +1,5 @@
-﻿/*
- * Copyright (c) 2011-2016 Meltytech, LLC
+/*
+ * Copyright (c) 2011-2017 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -156,6 +156,8 @@ public slots:
     void open(QString url, const Mlt::Properties* = 0);
     void openVideo();
     void openCut(Mlt::Producer* producer);
+    void hideProducer();
+    void closeProducer();
     void showStatusMessage(QAction* action, int timeoutSeconds = 5);
     void showStatusMessage(const QString& message, int timeoutSeconds = 5);
     void seekPlaylist(int start);
@@ -264,6 +266,7 @@ private slots:
     void onGLWidgetImageReady();
     void on_actionAppDataSet_triggered();
     void on_actionAppDataShow_triggered();
+    void on_actionNew_triggered();
 };
 
 #define MAIN MainWindow::singleton()

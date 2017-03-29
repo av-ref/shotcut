@@ -1,5 +1,5 @@
-﻿/*
- * Copyright (c) 2011-2016 Meltytech, LLC
+/*
+ * Copyright (c) 2011-2017 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -652,9 +652,12 @@ void MainWindow::setupSettingsMenu()
     QAction* a = new QAction(QLocale::languageToString(QLocale::Catalan), m_languagesGroup);
     a->setCheckable(true);
     a->setData("ca");
-    a = new QAction(QLocale::languageToString(QLocale::Chinese), m_languagesGroup);
+    a = new QAction(QLocale::languageToString(QLocale::Chinese).append(" (China)"), m_languagesGroup);
     a->setCheckable(true);
-    a->setData("zh");
+    a->setData("zh_CN");
+    a = new QAction(QLocale::languageToString(QLocale::Chinese).append(" (Taiwan)"), m_languagesGroup);
+    a->setCheckable(true);
+    a->setData("zh_TW");
     a = new QAction(QLocale::languageToString(QLocale::Czech), m_languagesGroup);
     a->setCheckable(true);
     a->setData("cs");
@@ -968,13 +971,7 @@ QString MainWindow::removeFileScheme(QUrl &url)
 {
     QString path = url.url();
     if (url.scheme() == "file")
-        path = url.path();
-    if (path.length() > 2 && path.startsWith("///"))
-#ifdef Q_OS_WIN
-        path.remove(0, 3);
-#else
-        path.remove(0, 2);
-#endif
+        path = url.url(QUrl::PreferLocalFile);
     return path;
 }
 
@@ -1135,6 +1132,31 @@ void MainWindow::openCut(Mlt::Producer* producer)
     m_player->setPauseAfterOpen(true);
     open(producer);
     MLT.seek(producer->get_in());
+}
+
+void MainWindow::hideProducer()
+{
+    // This is a hack to release references to the old producer, but it
+    // probably leaves a reference to the new color producer somewhere not
+    // yet identified (root cause).
+    openCut(new Mlt::Producer(MLT.profile(), "color:"));
+    QCoreApplication::processEvents();
+
+    QScrollArea* scrollArea = (QScrollArea*) m_propertiesDock->widget();
+    delete scrollArea->widget();
+    scrollArea->hide();
+    m_filterController->setProducer(0);
+    m_player->reset();
+
+    QCoreApplication::processEvents();
+}
+
+void MainWindow::closeProducer()
+{
+    hideProducer();
+    MLT.stop();
+    MLT.close();
+    MLT.setSavedProducer(0);
 }
 
 void MainWindow::showStatusMessage(QAction* action, int timeoutSeconds)
@@ -1768,6 +1790,12 @@ bool MainWindow::eventFilter(QObject* target, QEvent* event)
 
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
+    // Simulate the player firing a dragStarted even to make the playlist close
+    // its help text view. This lets one drop a clip directly into the playlist
+    // from a fresh start.
+    Mlt::GLWidget* videoWidget = (Mlt::GLWidget*) &Mlt::Controller::singleton();
+    emit videoWidget->dragStarted();
+
     event->acceptProposedAction();
 }
 
@@ -1845,8 +1873,10 @@ void MainWindow::on_actionOpenOther_triggered()
 
     if (MLT.producer())
         dialog.load(MLT.producer());
-    if (dialog.exec() == QDialog::Accepted)
-        open(dialog.producer(MLT.profile()));
+    if (dialog.exec() == QDialog::Accepted) {
+        closeProducer();
+        open(dialog.newProducer(MLT.profile()));
+    }
 }
 
 void MainWindow::onProducerOpened()
@@ -1899,6 +1929,9 @@ void MainWindow::onProducerOpened()
 void MainWindow::onProducerChanged()
 {
     MLT.refreshConsumer();
+    if (playlist() && MLT.producer() && MLT.producer()->is_valid()
+        && MLT.producer()->get_int(kPlaylistIndexProperty))
+        m_playlistDock->setUpdateButtonEnabled(true);
 }
 
 bool MainWindow::on_actionSave_triggered()
@@ -1976,6 +2009,19 @@ bool MainWindow::continueJobsRunning()
         QMessageBox dialog(QMessageBox::Warning,
                                      qApp->applicationName(),
                                      tr("There are incomplete jobs.\n"
+                                        "Do you want to still want to exit?"),
+                                     QMessageBox::No |
+                                     QMessageBox::Yes,
+                                     this);
+        dialog.setWindowModality(QmlApplication::dialogModality());
+        dialog.setDefaultButton(QMessageBox::Yes);
+        dialog.setEscapeButton(QMessageBox::No);
+        return (dialog.exec() == QMessageBox::Yes);
+    }
+    if (m_encodeDock->isExportInProgress()) {
+        QMessageBox dialog(QMessageBox::Warning,
+                                     qApp->applicationName(),
+                                     tr("An export is in progress.\n"
                                         "Do you want to still want to exit?"),
                                      QMessageBox::No |
                                      QMessageBox::Yes,
@@ -2080,9 +2126,7 @@ void MainWindow::onPlaylistLoaded()
 
 void MainWindow::onPlaylistCleared()
 {
-    m_player->setPauseAfterOpen(true);
-    open(new Mlt::Producer(MLT.profile(), "color:"));
-    m_player->seek(0);
+    m_player->onTabBarClicked(Player::SourceTabIndex);
     setWindowModified(true);
 }
 
@@ -2115,7 +2159,7 @@ void MainWindow::onMultitrackCreated()
 void MainWindow::onMultitrackClosed()
 {
     setProfile(Settings.playerProfile());
-    onPlaylistCleared();
+    closeProducer();
     setCurrentFile("");
     setWindowModified(false);
     m_undoStack->clear();
@@ -2270,13 +2314,15 @@ QWidget *MainWindow::loadProducerWidget(Mlt::Producer* producer)
         if (scrollArea->widget())
             scrollArea->widget()->deleteLater();
         return  w;
+    } else {
+        scrollArea->show();
     }
 
     QString service(producer->get("mlt_service"));
     QString resource = QString::fromUtf8(producer->get("resource"));
     QString shotcutProducer(producer->get(kShotcutProducerProperty));
 
-    if (resource.startsWith("video4linux2:"))
+    if (resource.startsWith("video4linux2:") || QString::fromUtf8(producer->get("resource1")).startsWith("video4linux2:"))
         w = new Video4LinuxWidget(this);
     else if (resource.startsWith("pulse:"))
         w = new PulseAudioWidget(this);
@@ -2284,7 +2330,7 @@ QWidget *MainWindow::loadProducerWidget(Mlt::Producer* producer)
         w = new JackProducerWidget(this);
     else if (resource.startsWith("alsa:"))
         w = new AlsaWidget(this);
-    else if (resource.startsWith("dshow:"))
+    else if (resource.startsWith("dshow:") || QString::fromUtf8(producer->get("resource1")).startsWith("dshow:"))
         w = new DirectShowVideoWidget(this);
     else if (resource.startsWith("avfoundation:"))
         w = new AvfoundationProducerWidget(this);
@@ -2350,11 +2396,7 @@ QWidget *MainWindow::loadProducerWidget(Mlt::Producer* producer)
 
 void MainWindow::onMeltedUnitOpened()
 {
-    Mlt::Producer* producer = new Mlt::Producer(MLT.profile(), "color:");
-    MLT.setProducer(producer);
-    MLT.play(0);
-    QScrollArea* scrollArea = (QScrollArea*) m_propertiesDock->widget();
-    delete scrollArea->widget();
+    closeProducer();
     if (m_meltedServerDock && m_meltedPlaylistDock) {
         m_player->connectTransport(m_meltedPlaylistDock->transportControl());
         connect(m_meltedServerDock, SIGNAL(positionUpdated(int,double,int,int,int,bool)),
@@ -3147,4 +3189,9 @@ void MainWindow::on_actionAppDataSet_triggered()
 void MainWindow::on_actionAppDataShow_triggered()
 {
     QDesktopServices::openUrl(QUrl::fromLocalFile(Settings.appDataLocation()));
+}
+
+void MainWindow::on_actionNew_triggered()
+{
+    on_actionClose_triggered();
 }

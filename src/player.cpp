@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Meltytech, LLC
+ * Copyright (c) 2012-2017 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -430,8 +430,27 @@ void Player::seek(int position)
     actionPlay->setToolTip(tr("Start playback (L)"));
 }
 
+void Player::reset()
+{
+    m_scrubber->setMarkers(QList<int>());
+    m_inPointLabel->setText("--:--:--:-- / ");
+    m_selectedLabel->setText("--:--:--:--");
+    m_durationLabel->setText(" / 00:00:00:00");
+    m_scrubber->setDisabled(true);
+    m_scrubber->setScale(1);
+    m_positionSpinner->setValue(0);
+    m_positionSpinner->setDisabled(true);
+    actionPlay->setDisabled(true);
+    actionSkipPrevious->setDisabled(true);
+    actionSkipNext->setDisabled(true);
+    actionRewind->setDisabled(true);
+    actionFastForward->setDisabled(true);
+    m_videoWidget->hide();
+}
+
 void Player::onProducerOpened(bool play)
 {
+    m_videoWidget->show();
     m_duration = MLT.producer()->get_length();
     m_isSeekable = MLT.isSeekable();
     MLT.producer()->set("ignore_points", 1);
@@ -868,7 +887,7 @@ void Player::on_actionVolume_triggered()
 {
     int x = (m_volumePopup->width() - m_volumeWidget->width()) / 2;
     x = mapToParent(m_volumeWidget->geometry().bottomLeft()).x() - x;
-    int y = 8 - m_volumePopup->height();
+    int y = m_scrubber->geometry().height() - m_volumePopup->height();
     m_volumePopup->move(mapToGlobal(m_scrubber->geometry().bottomLeft()) + QPoint(x, y));
     m_volumePopup->show();
     m_volumeWidget->hide();
@@ -880,8 +899,14 @@ void Player::onMuteButtonToggled(bool checked)
     if (checked) {
         m_savedVolume = MLT.volume();
         MLT.setVolume(0);
+        actionVolume->setIcon(QIcon::fromTheme("dialog-cancel", QIcon(":/icons/oxygen/32x32/actions/dialog-cancel.png")));
+        m_muteButton->setIcon(QIcon::fromTheme("player-volume", QIcon(":/icons/oxygen/32x32/actions/player-volume.png")));
+        m_muteButton->setToolTip(tr("Unmute"));
     } else {
         MLT.setVolume(m_savedVolume);
+        actionVolume->setIcon(QIcon::fromTheme("player-volume", QIcon(":/icons/oxygen/32x32/actions/player-volume.png")));
+        m_muteButton->setIcon(QIcon::fromTheme("dialog-cancel", QIcon(":/icons/oxygen/32x32/actions/dialog-cancel.png")));
+        m_muteButton->setToolTip(tr("Mute"));
     }
     Settings.setPlayerMuted(checked);
     m_volumePopup->hide();
