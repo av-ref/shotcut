@@ -1,6 +1,6 @@
 CONFIG   += link_prl
 
-QT       += widgets opengl xml network printsupport qml quick sql webkitwidgets
+QT       += widgets opengl xml network printsupport qml quick sql #webkitwidgets
 QT       += multimedia websockets quickwidgets
 QT       += qml-private core-private quick-private gui-private
 
@@ -69,8 +69,8 @@ SOURCES += main.cpp\
     qmltypes/qmlmetadata.cpp \
     qmltypes/timelineitems.cpp \
     qmltypes/qmlprofile.cpp \
-    htmleditor/htmleditor.cpp \
-    htmleditor/highlighter.cpp \
+#    htmleditor/htmleditor.cpp \
+#    htmleditor/highlighter.cpp \
     settings.cpp \
     widgets/lineeditclear.cpp \
     leapnetworklistener.cpp \
@@ -113,7 +113,8 @@ SOURCES += main.cpp\
     widgets/timelinepropertieswidget.cpp \
     jobs/ffprobejob.cpp \
     jobs/ffmpegjob.cpp \
-    dialogs/unlinkedfilesdialog.cpp
+    dialogs/unlinkedfilesdialog.cpp \
+    transportcontrol.cpp
 
 
 HEADERS  += mainwindow.h \
@@ -176,8 +177,8 @@ HEADERS  += mainwindow.h \
     qmltypes/qmlmetadata.h \
     qmltypes/timelineitems.h \
     qmltypes/qmlprofile.h \
-    htmleditor/htmleditor.h \
-    htmleditor/highlighter.h \
+#    htmleditor/htmleditor.h \
+#    htmleditor/highlighter.h \
     settings.h \
     widgets/lineeditclear.h \
     leapnetworklistener.h \
@@ -254,8 +255,8 @@ FORMS    += mainwindow.ui \
     mvcp/meltedserverdock.ui \
     mvcp/meltedplaylistdock.ui \
     dialogs/customprofiledialog.ui \
-    htmleditor/htmleditor.ui \
-    htmleditor/inserthtmldialog.ui \
+#    htmleditor/htmleditor.ui \
+#    htmleditor/inserthtmldialog.ui \
     widgets/webvfxproducer.ui \
     docks/timelinedock.ui \
     widgets/lumamixtransition.ui \
@@ -345,10 +346,10 @@ win32 {
     }
     INCLUDEPATH += $$MLT_PATH\\include\\mlt++ $$MLT_PATH\\include\\mlt
     LIBS += -L$$MLT_PATH\\lib -lmlt++ -lmlt -lopengl32
-    CONFIG(debug, debug|release) {
-        INCLUDEPATH += $$PWD/../drmingw/include
-        LIBS += -L$$PWD/../drmingw/x64/lib -lexchndl
-    }
+#    CONFIG(debug, debug|release) {
+#        INCLUDEPATH += $$PWD/../drmingw/include
+#        LIBS += -L$$PWD/../drmingw/x64/lib -lexchndl
+#    }
     RC_FILE = shotcut.rc
 }
 unix:!mac {

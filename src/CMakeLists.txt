@@ -1,4 +1,4 @@
-
+﻿
 
 
 
@@ -325,7 +325,8 @@ set( TRANSLATIONS
 ../translations/shotcut_ru.ts
 ../translations/shotcut_sk.ts
 ../translations/shotcut_uk.ts
-../translations/shotcut_zh.ts
+../translations/shotcut_zh_CN.ts
+../translations/shotcut_zh_TW.ts
 )
 
 
