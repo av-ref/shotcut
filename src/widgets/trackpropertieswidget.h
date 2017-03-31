@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2015 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -20,7 +20,7 @@
 #define TRACKPROPERTIESWIDGET_H
 
 #include <QWidget>
-#include <MltProducer.h>
+#include <mlt++/MltProducer.h>
 
 namespace Ui {
 class TrackPropertiesWidget;

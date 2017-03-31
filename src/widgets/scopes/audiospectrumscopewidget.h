@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2015 Meltytech, LLC
  * Author: Brian Matherly <code@brianmatherly.com>
  *
@@ -21,7 +21,7 @@
 
 
 #include "scopewidget.h"
-#include <MltFilter.h>
+#include <mlt++/MltFilter.h>
 
 class AudioMeterWidget;
 

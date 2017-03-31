@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2014 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -20,8 +20,8 @@
 #define LUMAMIXTRANSITION_H
 
 #include <QWidget>
-#include <MltProducer.h>
-#include <MltTransition.h>
+#include <mlt++/MltProducer.h>
+#include <mlt++/MltTransition.h>
 
 namespace Ui {
 class LumaMixTransition;

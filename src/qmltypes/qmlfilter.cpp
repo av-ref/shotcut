@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2013-2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -29,7 +29,7 @@
 #include <QTemporaryFile>
 #include <QFile>
 #include <QtXml>
-#include <MltProducer.h>
+#include <mlt++/MltProducer.h>
 
 static const char* kWidthProperty = "meta.media.width";
 static const char* kHeightProperty = "meta.media.height";

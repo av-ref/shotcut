@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2015-2016 Meltytech, LLC
  * Author: Brian Matherly <code@brianmatherly.com>
  *
@@ -22,7 +22,7 @@
 #include <QPainter>
 #include <QtAlgorithms>
 #include <QVBoxLayout>
-#include <MltProfile.h>
+#include <mlt++/MltProfile.h>
 #include <cmath>
 
 static const int WINDOW_SIZE = 8000; // 6 Hz FFT bins at 48kHz

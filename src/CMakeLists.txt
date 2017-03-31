@@ -11,14 +11,23 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Mlt REQUIRED)
+find_package(mlt REQUIRED)
 
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${MLT_INCLUDE_DIRS})
+
+FIND_PACKAGE( Mlt COMPONENTS mlt mlt++ REQUIRED )
+
+message(STATUS "include " ${MLT_mlt_INCLUDE_DIR})
+if(WIN32)
+    include_directories(${MLT_mlt++_INCLUDE_DIR}/mlt++})
+    include_directories(${MLT_mlt_INCLUDE_DIR}/framework})
+else(WIN32)
 include_directories(/usr/include/mlt++)
 include_directories(/usr/include/mlt)
+include_directories(${MLT_INCLUDE_DIRS})
+endif(WIN32)
 
 set(SHOTCUT_VERSION "2.6.5")
 configure_file( ../config.in.h ${CMAKE_CURRENT_BINARY_DIR}/config.h)
@@ -344,7 +353,7 @@ set( TRANSLATIONS
 
 add_executable(${target_name} ${SRCS} )
 
-target_link_libraries(${target_name} Logger mvcp pthread mlt++ mlt
+target_link_libraries(${target_name} Logger mvcp pthread mlt::mlt++ mlt::mlt
         Qt5::Widgets Qt5::Core Qt5::Gui Qt5::Svg Qt5::Xml
         Qt5::OpenGL Qt5::Network Qt5::Qml Qt5::Quick Qt5::QuickWidgets Qt5::Sql
         Qt5::WebSockets Qt5::Multimedia)
@@ -392,10 +401,23 @@ target_link_libraries(${target_name} Logger mvcp pthread mlt++ mlt
 #message("Install PREFIX not set; using C:\\Projects\\Shotcut. You can change this with 'qmake PREFIX=...'")
 #PREFIX = C:\\Projects\\Shotcut
 #}
-#unix:target.path = $$PREFIX/bin
-#win32:target.path = $$PREFIX
-#INSTALLS += target
-#
-#qmlfiles.files = $$PWD/qml
-#qmlfiles.path = $$PREFIX/share/shotcut
-#INSTALLS += qmlfiles
+
+
+add_custom_command(
+        TARGET mltcore
+        POST_BUILD
+        COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/../share
+        COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/../share/shotcut
+        COMMAND cmake -E copy ${CMAKE_CURRENT_SOURCE_DIR}/qml ${CMAKE_BINARY_DIR}/../share/shotcut/
+        )
+
+install(TARGETS ${target_name} EXPORT shotcut #install target: dll lib exe etc
+  LIBRARY DESTINATION lib/mlt
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)
+
+install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/qml 
+DESTINATION share/shotcut 
+)  #install dir

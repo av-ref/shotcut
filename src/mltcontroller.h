@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2011-2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -23,7 +23,7 @@
 #include <QString>
 #include <QUuid>
 #include <QScopedPointer>
-#include <Mlt.h>
+#include <mlt++/Mlt.h>
 #include "transportcontrol.h"
 
 // forward declarations

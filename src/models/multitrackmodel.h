@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2013-2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -22,8 +22,8 @@
 #include <QAbstractItemModel>
 #include <QList>
 #include <QString>
-#include <MltTractor.h>
-#include <MltPlaylist.h>
+#include <mlt++/MltTractor.h>
+#include <mlt++/MltPlaylist.h>
 
 typedef enum {
     PlaylistTrackType = 0,

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2015 Meltytech, LLC
  * Author: Brian Matherly <code@brianmatherly.com>
  *
@@ -21,7 +21,7 @@
 
 #include <QObject>
 #include <QExplicitlySharedDataPointer>
-#include <MltFrame.h>
+#include <mlt++/MltFrame.h>
 #include <stdint.h>
 
 class FrameData;

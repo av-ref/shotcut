@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2015 Meltytech, LLC
  * Author: Harald Hvaal <harald.hvaal@gmail.com>
  *
@@ -20,7 +20,7 @@
 #define UNDOHELPER_H
 
 #include "models/multitrackmodel.h"
-#include <MltPlaylist.h>
+#include <mlt++/MltPlaylist.h>
 #include <QString>
 #include <QMap>
 #include <QList>

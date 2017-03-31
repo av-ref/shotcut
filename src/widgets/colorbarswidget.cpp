@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2012-2017 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -20,7 +20,7 @@
 #include "colorbarswidget.h"
 #include "ui_colorbarswidget.h"
 #include "util.h"
-#include <MltProfile.h>
+#include <mlt++/MltProfile.h>
 
 static const char* kParamType = "0";
 static const char* kParamAspect = "1";

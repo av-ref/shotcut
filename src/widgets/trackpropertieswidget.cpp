@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2015-2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -22,7 +22,7 @@
 #include "commands/timelinecommands.h"
 #include "mainwindow.h"
 #include "util.h"
-#include <Mlt.h>
+#include <mlt++/Mlt.h>
 #include <QScopedPointer>
 
 static const char* BLEND_PROPERTY_CAIROBLEND = "1";

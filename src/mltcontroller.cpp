@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2011-2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -24,12 +24,13 @@
 #include <QFileInfo>
 #include <QUuid>
 #include <Logger.h>
-#include <Mlt.h>
+#include <mlt++/Mlt.h>
 #include "glwidget.h"
 #include "settings.h"
 #include "shotcut_mlt_properties.h"
 #include "mainwindow.h"
-
+#include <QApplication>
+#include <QDir>
 namespace Mlt {
 
 static Controller* instance = 0;
@@ -47,7 +48,16 @@ Controller::Controller()
     , m_volume(1.0)
 {
     LOG_DEBUG() << "begin";
-    m_repo = Mlt::Factory::init();
+    QDir dir(QApplication::applicationDirPath());
+    dir.cdUp();
+    dir.cd("lib");
+    dir.cd("mlt");
+    QDir data(QApplication::applicationDirPath());
+    data.cdUp();
+    data.cd("share");
+    data.cd("mlt");
+    m_repo =Mlt::Factory::init(dir.path().toStdString().c_str(), data.path().toStdString().c_str());
+//    m_repo = Mlt::Factory::init();
     m_profile = new Mlt::Profile("atsc_1080p_25");
     m_filtersClipboard.reset(new Mlt::Producer(profile(), "color", "black"));
     updateAvformatCaching(0);

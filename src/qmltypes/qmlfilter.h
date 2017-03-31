@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2013-2015 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -23,7 +23,7 @@
 #include <QString>
 #include <QVariant>
 #include <QRectF>
-#include <MltFilter.h>
+#include <mlt++/MltFilter.h>
 #include "qmlmetadata.h"
 
 class AbstractJob;

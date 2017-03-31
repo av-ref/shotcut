@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -20,7 +20,7 @@
 #include "mainwindow.h"
 #include "dialogs/textviewerdialog.h"
 #include "util.h"
-#include <MltProperties.h>
+#include <mlt++/MltProperties.h>
 
 #include <QAction>
 #include <QApplication>

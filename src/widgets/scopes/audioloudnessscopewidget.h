@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2016 Meltytech, LLC
  * Author: Brian Matherly <code@brianmatherly.com>
  *
@@ -23,7 +23,7 @@
 #include <QMutex>
 #include <QImage>
 #include <QVector>
-#include <MltFilter.h>
+#include <mlt++/MltFilter.h>
 
 class QQuickWidget;
 class QLabel;

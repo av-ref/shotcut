@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2016-2017 Meltytech, LLC
  * Author: Brian Matherly <code@brianmatherly.com>
  *
@@ -21,7 +21,7 @@
 #include "ui_countproducerwidget.h"
 #include "util.h"
 #include "mltcontroller.h"
-#include <MltProfile.h>
+#include <mlt++/MltProfile.h>
 
 void setLength(Mlt::Properties* p, int length)
 {

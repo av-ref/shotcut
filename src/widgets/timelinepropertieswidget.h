@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2015 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -20,7 +20,7 @@
 #define TIMELINEPROPERTIESWIDGET_H
 
 #include <QWidget>
-#include <MltService.h>
+#include <mlt++/MltService.h>
 
 namespace Ui {
 class TimelinePropertiesWidget;

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2013-2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -20,8 +20,8 @@
 #define THUMBNAILPROVIDER_H
 
 #include <QQuickImageProvider>
-#include <MltProducer.h>
-#include <MltProfile.h>
+#include <mlt++/MltProducer.h>
+#include <mlt++/MltProfile.h>
 
 class ThumbnailProvider : public QQuickImageProvider
 {

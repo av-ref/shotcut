@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2012-2017 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -23,7 +23,7 @@
 #include <QDomElement>
 #include <QStandardItemModel>
 #include <QSortFilterProxyModel>
-#include <MltProperties.h>
+#include <mlt++/MltProperties.h>
 
 class QTreeWidgetItem;
 class QStringList;

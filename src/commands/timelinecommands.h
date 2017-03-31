@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2013-2015 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -25,7 +25,7 @@
 #include <QUndoCommand>
 #include <QString>
 #include <QObject>
-#include <MltTransition.h>
+#include <mlt++/MltTransition.h>
 
 namespace Timeline
 {

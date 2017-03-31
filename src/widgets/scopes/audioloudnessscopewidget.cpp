@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2016 Meltytech, LLC
  * Author: Brian Matherly <code@brianmatherly.com>
  *
@@ -28,7 +28,7 @@
 #include <QMenu>
 #include <QLabel>
 #include <QTimer>
-#include <MltProfile.h>
+#include <mlt++/MltProfile.h>
 #include <math.h>
 #include "qmltypes/qmlutilities.h"
 #include "mltcontroller.h"

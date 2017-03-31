@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2012-2017 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -19,7 +19,7 @@
 #ifndef ABSTRACTPRODUCERWIDGET_H
 #define ABSTRACTPRODUCERWIDGET_H
 
-#include <MltProducer.h>
+#include <mlt++/MltProducer.h>
 #include <QScopedPointer>
 
 class AbstractProducerWidget

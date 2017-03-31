@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2013-2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -20,9 +20,9 @@
 #define ATTACHEDFILTERSMODEL_H
 
 #include <QAbstractListModel>
-#include <MltFilter.h>
-#include <MltProducer.h>
-#include <MltEvent.h>
+#include <mlt++/MltFilter.h>
+#include <mlt++/MltProducer.h>
+#include <mlt++/MltEvent.h>
 
 class QmlMetadata;
 

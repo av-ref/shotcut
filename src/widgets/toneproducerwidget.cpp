@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2015-2017 Meltytech, LLC
  * Author: Brian Matherly <code@brianmatherly.com>
  *
@@ -20,7 +20,7 @@
 #include "toneproducerwidget.h"
 #include "ui_toneproducerwidget.h"
 #include "util.h"
-#include <MltProfile.h>
+#include <mlt++/MltProfile.h>
 
 ToneProducerWidget::ToneProducerWidget(QWidget *parent) :
     QWidget(parent),

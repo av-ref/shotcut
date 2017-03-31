@@ -1,4 +1,4 @@
-
+﻿
 
 
 ADD_DEFINITIONS(-DCUTELOGGER_LIBRARY)
@@ -35,3 +35,10 @@ SET(library_target Logger)
 ADD_LIBRARY(${library_target} SHARED ${sources} ${includes})
 TARGET_LINK_LIBRARIES(${library_target} Qt5::Widgets Qt5::Core Qt5::Gui)
 #INSTALL(TARGETS ${library_target} DESTINATION lib)
+
+install(TARGETS ${library_target} EXPORT shotcut #install target: dll lib exe etc
+  LIBRARY DESTINATION lib/mlt
+  ARCHIVE DESTINATION lib
+  RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
+)

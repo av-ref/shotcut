@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2014-2017 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -275,10 +275,10 @@ bool MltXmlChecker::fixWebVfxPath(QString& resource)
     if (fi.isAbsolute()) {
         QDir appPath(QCoreApplication::applicationDirPath());
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+//#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
         // Leave the bin directory on Linux.
         appPath.cdUp();
-#endif
+//#endif
         if (!resource.startsWith(appPath.path())) {
             // Locate "share/shotcut" and replace the front of it with appPath.
             int i = resource.indexOf("/share/shotcut/");

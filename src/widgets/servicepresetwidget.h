@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2012 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -20,7 +20,7 @@
 #define SERVICEPRESETWIDGET_H
 
 #include <QWidget>
-#include <MltProperties.h>
+#include <mlt++/MltProperties.h>
 
 namespace Ui {
     class ServicePresetWidget;

@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2015-2016 Meltytech, LLC
  * Author: Brian Matherly <code@brianmatherly.com>
  *
@@ -19,7 +19,7 @@
 #include "audiopeakmeterscopewidget.h"
 #include <Logger.h>
 #include <QVBoxLayout>
-#include <MltProfile.h>
+#include <mlt++/MltProfile.h>
 #include "widgets/audiometerwidget.h"
 #include "mltcontroller.h"
 #include <cmath> // log10()

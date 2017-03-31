@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2012 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -23,7 +23,7 @@
 #include <qmimedata.h>
 #include <QStringList>
 #include "mltcontroller.h"
-#include "MltPlaylist.h"
+#include <mlt++/MltPlaylist.h>
 
 #define kDetailedMode "detailed"
 #define kIconsMode "icons"

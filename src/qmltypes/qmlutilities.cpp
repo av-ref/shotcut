@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2013-2015 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -64,9 +64,9 @@ void QmlUtilities::setCommonProperties(QQmlContext* context)
 QDir QmlUtilities::qmlDir()
 {
     QDir dir(qApp->applicationDirPath());
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+//#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     dir.cdUp();
-#endif
+//#endif
     dir.cd("share");
     dir.cd("shotcut");
     dir.cd("qml");

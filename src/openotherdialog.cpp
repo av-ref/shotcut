@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2012-2017 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -19,7 +19,7 @@
 #include "openotherdialog.h"
 #include "ui_openotherdialog.h"
 #include "mltcontroller.h"
-#include <Mlt.h>
+#include <mlt++/Mlt.h>
 #include <QtWidgets>
 
 #define ENABLE_SCREEN_CAPTURE (0)

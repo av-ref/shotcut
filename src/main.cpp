@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2011-2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -32,7 +32,7 @@
 
 #ifdef Q_OS_WIN
 #ifdef QT_DEBUG
-#   include <exchndl.h>
+//#   include <exchndl.h>
 #endif
 extern "C"
 {
@@ -200,9 +200,9 @@ public:
         dir.cdUp();
         dir.cd("Resources");
         dir.cd("translations");
-    #elif defined(Q_OS_WIN)
-        dir.cd("share");
-        dir.cd("translations");
+//    #elif defined(Q_OS_WIN)
+//        dir.cd("share");
+//        dir.cd("translations");
     #else
         dir.cdUp();
         dir.cd("share");
@@ -243,7 +243,7 @@ protected:
 int main(int argc, char **argv)
 {
 #if defined(Q_OS_WIN) && defined(QT_DEBUG)
-    ExcHndlInit();
+//    ExcHndlInit();
 #endif
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
     QCoreApplication::setAttribute(Qt::AA_X11InitThreads);

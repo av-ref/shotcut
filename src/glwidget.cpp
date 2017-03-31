@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2011-2016 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -25,7 +25,7 @@
 #include <QUrl>
 #include <QOffscreenSurface>
 #include <QtQml>
-#include <Mlt.h>
+#include <mlt++/Mlt.h>
 #include <Logger.h>
 #include "glwidget.h"
 #include "settings.h"
