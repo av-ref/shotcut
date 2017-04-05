@@ -31,6 +31,8 @@ endif(WIN32)
 
 set(SHOTCUT_VERSION "2.6.5")
 configure_file( ../config.in.h ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+include_directories(${CMAKE_BINARY_DIR}/)
+
 set( SRCS
         main.cpp
         mainwindow.cpp
@@ -304,6 +306,8 @@ set( RESOURCES
         ../other-resources.qrc
 )
 
+qt5_add_resources(QRCS ${RESOURCES})
+
 
 #OTHER_FILES += \
 #../COPYING \
@@ -351,12 +355,14 @@ set( TRANSLATIONS
 #qt5_wrap_ui(uis ${FORMS})
 #qt5_generate_moc( ${HEADERS} mocs)
 
-add_executable(${target_name} ${SRCS} )
+add_executable(${target_name} ${SRCS} ${QRCS} )
 
-target_link_libraries(${target_name} Logger mvcp pthread mlt::mlt++ mlt::mlt
+target_link_libraries(${target_name} Logger mvcp mlt::mlt++ mlt::mlt
         Qt5::Widgets Qt5::Core Qt5::Gui Qt5::Svg Qt5::Xml
         Qt5::OpenGL Qt5::Network Qt5::Qml Qt5::Quick Qt5::QuickWidgets Qt5::Sql
         Qt5::WebSockets Qt5::Multimedia)
+target_include_directories(${target_name}
+    PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 #mac {
 #TARGET = Shotcut

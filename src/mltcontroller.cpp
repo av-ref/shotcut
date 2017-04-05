@@ -187,7 +187,7 @@ void Controller::close()
 
 void Controller::closeConsumer()
 {
-    if (m_consumer)
+    if (m_consumer &&  m_consumer->is_valid())
         m_consumer->stop();
     delete m_consumer;
     m_consumer = 0;
@@ -220,6 +220,8 @@ void Controller::play(double speed)
 
 void Controller::pause()
 {
+    if( !m_consumer || !m_consumer->is_valid())
+        return;
     if (m_producer && m_producer->get_speed() != 0) {
         if (!Settings.playerGPU())
         if (m_consumer && m_consumer->is_valid()) {
@@ -400,7 +402,7 @@ void Controller::saveXML(const QString& filename, Service* service, bool withRel
             c.set("root", QFileInfo(filename).absolutePath().toUtf8().constData());
             c.set("no_root", 1);
         }
-        c.set("title", QString("Shotcut version ").append(SHOTCUT_VERSION).toUtf8().constData());
+        c.set("title", QString("Shotcut version ").append("SHOTCUT_VERSION").toUtf8().constData());
         c.connect(s);
         c.start();
         if (ignore)

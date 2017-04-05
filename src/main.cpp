@@ -111,7 +111,7 @@ public:
         setOrganizationName("Meltytech");
         setOrganizationDomain("meltytech.com");
         setApplicationName("Shotcut");
-        setApplicationVersion(SHOTCUT_VERSION);
+        setApplicationVersion("SHOTCUT_VERSION");
         setAttribute(Qt::AA_UseHighDpiPixmaps);
         setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
 #if defined(Q_OS_MAC)
@@ -172,7 +172,7 @@ public:
         mlt_log_set_callback(mlt_log_handler);
 
         // Log some basic info.
-        LOG_INFO() << "Starting Shotcut version" << SHOTCUT_VERSION;
+        LOG_INFO() << "Starting Shotcut version" << "SHOTCUT_VERSION";
 #if defined (Q_OS_WIN)
         LOG_INFO() << "Windows version" << QSysInfo::windowsVersion();
 #elif defined(Q_OS_MAC)

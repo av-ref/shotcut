@@ -24,11 +24,11 @@ set(QtMods Qt5Core
     Qt5Multimedia)
 
 if(WIN32)
-    set(CMAKE_INSTALL_PREFIX "F:/github.cpp-repo/mlt_shotcut_ffmpeg/install")
-    set(QtPath "C:/Qt/Qt5.8.0-mingw/5.8/mingw53_32/")
+    set(CMAKE_INSTALL_PREFIX "F:/github.cpp-repo/mlt_shotcut_ffmpeg/install-vc")
+    set(QtPath "C:/Qt/Qt5.8.0-vc/5.8/msvc2015_64/")
     set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
-        "F:/github.cpp-repo/mlt_shotcut_ffmpeg/install-mlt/lib/cmake/mlt")
-    set(ThirdPartyPath "F:/github.cpp-repo/mlt_shotcut_ffmpeg/install")
+        "F:/github.cpp-repo/mlt_shotcut_ffmpeg/install-vc/lib/cmake/mlt")
+    set(ThirdPartyPath "F:/github.cpp-repo/mlt_shotcut_ffmpeg/install-vc")
     link_directories( ${ThirdPartyPath}/lib )
     INCLUDE_DIRECTORIES(${ThirdPartyPath}/include)
 else(WIN32)

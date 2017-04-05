@@ -137,13 +137,13 @@ public:
     void setSavedProducer(Mlt::Producer* producer);
 
 protected:
-    Mlt::Repository* m_repo;
-    Mlt::Producer* m_producer;
-    Mlt::FilteredConsumer* m_consumer;
+    Mlt::Repository* m_repo = nullptr;
+    Mlt::Producer* m_producer = nullptr;
+    Mlt::FilteredConsumer* m_consumer = nullptr;
 
 private:
-    Mlt::Profile* m_profile;
-    Mlt::Filter* m_jackFilter;
+    Mlt::Profile* m_profile = nullptr;
+    Mlt::Filter* m_jackFilter = nullptr;
     QString m_url;
     double m_volume;
     TransportControl m_transportControl;
