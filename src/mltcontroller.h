@@ -1,5 +1,5 @@
-﻿/*
- * Copyright (c) 2011-2016 Meltytech, LLC
+/*
+ * Copyright (c) 2011-2018 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -31,6 +31,7 @@ class QQuickView;
 
 namespace Mlt {
 
+const int kMaxImageDurationSecs = 3600 * 4;
 extern const QString XmlMimeType;
 
 class TransportControl : public TransportControllable
@@ -79,7 +80,7 @@ public:
     virtual void seek(int position);
     void refreshConsumer(bool scrubAudio = false);
     void saveXML(const QString& filename, Service* service = 0, bool withRelativePaths = true);
-    QString XML(Service* service = 0);
+    QString XML(Service* service = 0, bool withProfile = false);
     int consumerChanged();
     void setProfile(const QString& profile_name);
     QString resource() const;
@@ -149,11 +150,13 @@ private:
     TransportControl m_transportControl;
     QScopedPointer<Mlt::Producer> m_savedProducer;
     QScopedPointer<Mlt::Producer> m_filtersClipboard;
+    unsigned m_skipJackEvents;
 
     static void on_jack_started(mlt_properties owner, void* object, mlt_position *position);
     void onJackStarted(int position);
     static void on_jack_stopped(mlt_properties owner, void* object, mlt_position *position);
     void onJackStopped(int position);
+    void stopJack();
 };
 
 } // namespace

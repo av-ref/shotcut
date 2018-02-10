@@ -77,6 +77,7 @@ public:
     QString getFileHash(const QString& path) const;
     QString getHash(Mlt::Properties& properties) const;
     void setProfile(const QString& profile_name);
+    QString fileName() const { return m_currentFile; }
 
     void keyPressEvent(QKeyEvent*);
     void keyReleaseEvent(QKeyEvent *);
@@ -175,6 +176,7 @@ public slots:
     void onShuttle(float x);
 
 private slots:
+    void showUpgradePrompt();
     void on_actionAbout_Shotcut_triggered();
     void on_actionOpenOther_triggered();
     void onProducerChanged();
