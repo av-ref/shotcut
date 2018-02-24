@@ -3,7 +3,7 @@
 
 #include <QtCore/qglobal.h>
 
-#if defined(QT_STATIC)
+#if defined(Logger_STATIC)
 #  define CUTELOGGERSHARED_EXPORT
 #else
 #  if defined(CUTELOGGER_LIBRARY)

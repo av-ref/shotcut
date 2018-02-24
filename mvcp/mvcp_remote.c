@@ -84,7 +84,7 @@ mvcp_parser mvcp_parser_init_remote( char *server, int port )
 		if ( remote != NULL )
 		{
 			remote->parser = parser;
-			remote->server = strdup( server );
+			remote->server = _strdup( server );
 			remote->port = port;
 			pthread_mutex_init( &remote->mutex, NULL );
 		}

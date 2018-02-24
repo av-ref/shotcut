@@ -64,7 +64,7 @@ static int mvcp_tokeniser_append( mvcp_tokeniser tokeniser, char *token )
 
 	if ( tokeniser->tokens != NULL )
 	{
-		tokeniser->tokens[ tokeniser->count ++ ] = strdup( token );
+		tokeniser->tokens[ tokeniser->count ++ ] = _strdup( token );
 	}
 	else
 	{
@@ -83,10 +83,10 @@ int mvcp_tokeniser_parse_new( mvcp_tokeniser tokeniser, char *string, const char
 	int length = strlen( string );
 	int delimiter_size = strlen( delimiter );
 	int index = 0;
-	char *token = strdup( string );
+	char *token = _strdup( string );
 
 	mvcp_tokeniser_clear( tokeniser );
-	tokeniser->input = strdup( string );
+	tokeniser->input = _strdup( string );
 	strcpy( token, "" );
 
 	for ( index = 0; index < length; )

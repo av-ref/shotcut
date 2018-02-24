@@ -33,96 +33,86 @@
 #include <QHeaderView>
 #include <QKeyEvent>
 
-class TiledItemDelegate : public QStyledItemDelegate
+TiledItemDelegate::TiledItemDelegate(QAbstractItemView * view, QWidget *parent )
+     : QStyledItemDelegate(parent),
+     m_view(view)
 {
-    Q_OBJECT
-public:
-    TiledItemDelegate(QAbstractItemView * view, QWidget *parent = 0)
-         : QStyledItemDelegate(parent),
-         m_view(view)
-    {
-        connect(&Settings, SIGNAL(playlistThumbnailsChanged()),
-                SLOT(emitSizeHintChanged()));
+    connect(&Settings, SIGNAL(playlistThumbnailsChanged()),
+            SLOT(emitSizeHintChanged()));
+}
+
+void TiledItemDelegate::paint(QPainter *painter,
+           const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    const QImage thumb = index.data(Qt::DecorationRole).value<QImage>();
+    const QString setting = Settings.playlistThumbnails();
+    const int lineHeight = painter->fontMetrics().height();
+    const bool roomEnoughForAllDetails = lineHeight * 4 < thumb.height();
+    const QFont oldFont = painter->font();
+    QFont boldFont(oldFont);
+    boldFont.setBold(true);
+
+    if (option.state & QStyle::State_Selected) {
+        painter->fillRect(option.rect, option.palette.highlight().color());
+    } else {
+        if (option.features & QStyleOptionViewItem::Alternate)
+            painter->fillRect(option.rect, option.palette.alternateBase());
     }
 
-    void paint(QPainter *painter,
-               const QStyleOptionViewItem &option, const QModelIndex &index) const
-    {
-        const QImage thumb = index.data(Qt::DecorationRole).value<QImage>();
-        const QString setting = Settings.playlistThumbnails();
-        const int lineHeight = painter->fontMetrics().height();
-        const bool roomEnoughForAllDetails = lineHeight * 4 < thumb.height();
-        const QFont oldFont = painter->font();
-        QFont boldFont(oldFont);
-        boldFont.setBold(true);
+    QRect thumbRect(QPoint(), thumb.size());
+    thumbRect.moveCenter(option.rect.center());
+    thumbRect.moveLeft(0);
+    painter->drawImage(thumbRect, thumb);
 
-        if (option.state & QStyle::State_Selected) {
-            painter->fillRect(option.rect, option.palette.highlight().color());
-        } else {
-            if (option.features & QStyleOptionViewItem::Alternate)
-                painter->fillRect(option.rect, option.palette.alternateBase());
-        }
+    const QPoint indexPos = option.rect.topLeft() + QPoint(5, 20);
+    const QString indexStr = "#" + index.data(PlaylistModel::FIELD_INDEX).toString();
+    painter->setFont(boldFont);
+    painter->setPen(option.palette.color(QPalette::Dark).darker());
+    painter->drawText(indexPos, indexStr);
+    painter->setPen(option.palette.color(QPalette::WindowText));
+    painter->drawText(indexPos - QPoint(1, 1), indexStr);
+    painter->setFont(oldFont);
 
-        QRect thumbRect(QPoint(), thumb.size());
-        thumbRect.moveCenter(option.rect.center());
-        thumbRect.moveLeft(0);
-        painter->drawImage(thumbRect, thumb);
+    QRect centeredTextRect = option.rect;
+    centeredTextRect.setHeight(lineHeight * (roomEnoughForAllDetails ? 4 : 2));
+    centeredTextRect.moveCenter(option.rect.center());
 
-        const QPoint indexPos = option.rect.topLeft() + QPoint(5, 20);
-        const QString indexStr = "#" + index.data(PlaylistModel::FIELD_INDEX).toString();
-        painter->setFont(boldFont);
-        painter->setPen(option.palette.color(QPalette::Dark).darker());
-        painter->drawText(indexPos, indexStr);
-        painter->setPen(option.palette.color(QPalette::WindowText));
-        painter->drawText(indexPos - QPoint(1, 1), indexStr);
-        painter->setFont(oldFont);
+    QRect textRect = centeredTextRect;
+    textRect.setLeft(thumb.width() + 10);
 
-        QRect centeredTextRect = option.rect;
-        centeredTextRect.setHeight(lineHeight * (roomEnoughForAllDetails ? 4 : 2));
-        centeredTextRect.moveCenter(option.rect.center());
+    QPoint textPoint = textRect.topLeft();
+    textPoint.setY(textPoint.y() + lineHeight);
+    painter->setFont(boldFont);
+    painter->drawText(textPoint,
+            painter->fontMetrics().elidedText(index.data(Qt::DisplayRole).toString(), Qt::ElideMiddle, textRect.width()));
+    painter->setFont(oldFont);
 
-        QRect textRect = centeredTextRect;
-        textRect.setLeft(thumb.width() + 10);
-
-        QPoint textPoint = textRect.topLeft();
+    textPoint.setY(textPoint.y() + lineHeight);
+    painter->drawText(textPoint, tr("Duration: %1").arg(index.data(PlaylistModel::FIELD_DURATION).toString()));
+    if (roomEnoughForAllDetails) {
         textPoint.setY(textPoint.y() + lineHeight);
-        painter->setFont(boldFont);
-        painter->drawText(textPoint,
-                painter->fontMetrics().elidedText(index.data(Qt::DisplayRole).toString(), Qt::ElideMiddle, textRect.width()));
-        painter->setFont(oldFont);
-
+        painter->drawText(textPoint, tr("In: %1").arg(index.data(PlaylistModel::FIELD_IN).toString()));
         textPoint.setY(textPoint.y() + lineHeight);
-        painter->drawText(textPoint, tr("Duration: %1").arg(index.data(PlaylistModel::FIELD_DURATION).toString()));
-        if (roomEnoughForAllDetails) {
-            textPoint.setY(textPoint.y() + lineHeight);
-            painter->drawText(textPoint, tr("In: %1").arg(index.data(PlaylistModel::FIELD_IN).toString()));
-            textPoint.setY(textPoint.y() + lineHeight);
-            painter->drawText(textPoint, tr("Start: %1").arg(index.data(PlaylistModel::FIELD_START).toString()));
-        }
+        painter->drawText(textPoint, tr("Start: %1").arg(index.data(PlaylistModel::FIELD_START).toString()));
     }
+}
 
-    QSize sizeHint(const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const
-    {
-        Q_UNUSED(option);
-        Q_UNUSED(index);
-        const bool doubleHeight = Settings.playlistThumbnails() == "tall"
-            || Settings.playlistThumbnails() == "large";
-        const int spacing = 10;
-        return QSize(m_view->viewport()->width(),
-                PlaylistModel::THUMBNAIL_HEIGHT * (doubleHeight ? 2 : 1) + spacing);
-    }
+QSize TiledItemDelegate::sizeHint(const QStyleOptionViewItem &option,
+               const QModelIndex &index) const
+{
+    Q_UNUSED(option);
+    Q_UNUSED(index);
+    const bool doubleHeight = Settings.playlistThumbnails() == "tall"
+        || Settings.playlistThumbnails() == "large";
+    const int spacing = 10;
+    return QSize(m_view->viewport()->width(),
+            PlaylistModel::THUMBNAIL_HEIGHT * (doubleHeight ? 2 : 1) + spacing);
+}
 
-private slots:
-    void emitSizeHintChanged()
-    {
-        emit sizeHintChanged(QModelIndex());
-    }
-
-private:
-    QAbstractItemView * m_view;
-
-};
+void TiledItemDelegate::emitSizeHintChanged()
+{
+    emit sizeHintChanged(QModelIndex());
+}
 
 PlaylistDock::PlaylistDock(QWidget *parent) :
     QDockWidget(parent),
@@ -724,7 +714,7 @@ void PlaylistDock::setViewMode(PlaylistModel::ViewMode mode)
     m_model.refreshThumbnails();
 }
 
-#include "playlistdock.moc"
+//#include "playlistdock.moc"
 
 void PlaylistDock::on_tilesButton_clicked()
 {

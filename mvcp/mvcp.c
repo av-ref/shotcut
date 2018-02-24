@@ -601,7 +601,7 @@ mvcp_dir mvcp_dir_init( mvcp this, const char *directory )
 	if ( dir != NULL )
 	{
 		memset( dir, 0, sizeof( mvcp_dir_t ) );
-		dir->directory = strdup( directory );
+        dir->directory = _strdup( directory );
 		dir->response = mvcp_parser_executef( this->parser, "CLS \"%s\"", directory );
 	}
 	return dir;

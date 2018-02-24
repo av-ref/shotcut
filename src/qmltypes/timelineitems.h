@@ -17,7 +17,53 @@
 
 #ifndef _TIMELINEITEMS_H
 #define _TIMELINEITEMS_H
+#include <QColor>
+#include <QQuickPaintedItem>
 
 void registerTimelineItems();
+
+class TimelineTransition : public QQuickPaintedItem
+{
+    Q_OBJECT
+    Q_PROPERTY(QColor colorA MEMBER m_colorA NOTIFY propertyChanged)
+    Q_PROPERTY(QColor colorB MEMBER m_colorB NOTIFY propertyChanged)
+
+public:
+    TimelineTransition();
+
+    void paint(QPainter *painter);
+
+signals:
+    void propertyChanged();
+
+private:
+    QColor m_colorA;
+    QColor m_colorB;
+};
+
+class TimelineWaveform : public QQuickPaintedItem
+{
+    Q_OBJECT
+    Q_PROPERTY(QVariant levels MEMBER m_audioLevels NOTIFY propertyChanged)
+    Q_PROPERTY(QColor fillColor MEMBER m_color NOTIFY propertyChanged)
+    Q_PROPERTY(int inPoint MEMBER m_inPoint NOTIFY inPointChanged)
+    Q_PROPERTY(int outPoint MEMBER m_outPoint NOTIFY outPointChanged)
+
+public:
+    TimelineWaveform();
+
+    void paint(QPainter *painter);
+
+signals:
+    void propertyChanged();
+    void inPointChanged();
+    void outPointChanged();
+
+private:
+    QVariant m_audioLevels;
+    int m_inPoint;
+    int m_outPoint;
+    QColor m_color;
+};
 
 #endif

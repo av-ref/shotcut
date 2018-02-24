@@ -16,9 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "config.h"
-#include <QtWidgets>
-#include <QtGlobal>
+//#include "config.h"
+//#include <QtWidgets>
+//#include <QtGlobal>
+#include <QApplication>
+#include <QPixmap>
+#include <QTranslator>
+#include <QSplashScreen>
+#include <QDir>
+#include <QThread>
+#include <QLibraryInfo>
+#include <QFileOpenEvent>
+#include <QStyle>
 #include "mainwindow.h"
 #include "settings.h"
 #include <Logger.h>
@@ -28,9 +37,10 @@
 #include <QProcess>
 #include <QCommandLineParser>
 #include <framework/mlt_log.h>
-
+#include <QDebug>
 
 #ifdef Q_OS_WIN
+#include <Windows.h>
 #ifdef QT_DEBUG
 //#   include <exchndl.h>
 #endif
@@ -104,8 +114,10 @@ public:
 
     Application(int &argc, char **argv)
         : QApplication(argc, argv)
-    {
-        QDir dir(applicationDirPath());
+    {}
+
+    void init() {
+        QDir dir(QCoreApplication::applicationDirPath());
         dir.cd("lib");
         dir.cd("qt5");
         addLibraryPath(dir.absolutePath());
@@ -140,6 +152,7 @@ public:
         parser.addOption(appDataOption);
         parser.addPositionalArgument("resource",
             QCoreApplication::translate("main", "A file to open."));
+        qDebug()<<arguments();
         parser.process(arguments());
 #ifdef Q_OS_WIN
         isFullScreen = false;
@@ -247,16 +260,20 @@ protected:
 
 int main(int argc, char **argv)
 {
-#if defined(Q_OS_WIN) && defined(QT_DEBUG)
-//    ExcHndlInit();
-#endif
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-    QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
-#endif
-#if QT_VERSION >= 0x050600
-    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-#endif
+//#if defined(Q_OS_WIN) && defined(QT_DEBUG)
+////    ExcHndlInit();
+//#endif
+//#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
+//    QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
+//#endif
+//#if QT_VERSION >= 0x050600
+//    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
+//#endif
+
     Application a(argc, argv);
+
+    a.init();
+
     QSplashScreen splash(QPixmap(":/icons/shotcut-logo-640.png"));
     splash.showMessage(QCoreApplication::translate("main", "Loading plugins..."), Qt::AlignHCenter | Qt::AlignBottom);
     splash.show();

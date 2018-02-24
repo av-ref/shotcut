@@ -2,13 +2,16 @@ QT       -= gui
 
 TARGET = CuteLogger
 TEMPLATE = lib
-
-CONFIG += staticlib
 CONFIG += create_prl
+CONFIG += staticlib
 
-DEFINES += CUTELOGGER_LIBRARY
+DESTDIR = ../lib
+
+DEFINES += CUTELOGGER_LIBRARY Logger_STATIC
 
 INCLUDEPATH += ./include
+
+include(../shotcut-win.pri)
 
 SOURCES += src/Logger.cpp \
            src/AbstractAppender.cpp \

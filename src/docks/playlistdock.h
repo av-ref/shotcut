@@ -21,7 +21,9 @@
 
 #include <QDockWidget>
 #include <QUndoCommand>
+#include <QStyledItemDelegate>
 #include "models/playlistmodel.h"
+
 
 namespace Ui {
     class PlaylistDock;
@@ -126,6 +128,27 @@ private:
     QAbstractItemView *m_iconsView;
     PlaylistModel m_model;
     int m_defaultRowHeight;
+};
+
+class TiledItemDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+public:
+    TiledItemDelegate(QAbstractItemView * view, QWidget *parent = 0);
+
+    void paint(QPainter *painter,
+               const QStyleOptionViewItem &option, const QModelIndex &index) const;
+
+
+    QSize sizeHint(const QStyleOptionViewItem &option,
+                   const QModelIndex &index) const;
+
+private slots:
+    void emitSizeHintChanged();
+
+private:
+    QAbstractItemView * m_view;
+
 };
 
 #endif // PLAYLISTDOCK_H

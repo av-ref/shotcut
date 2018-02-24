@@ -23,7 +23,23 @@
 #include "widgets/audioscale.h"
 #include "settings.h"
 #include "util.h"
-#include <QtWidgets>
+//#include <QtWidgets>
+#include <QTabBar>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QGraphicsOpacityEffect>
+#include <QPropertyAnimation>
+#include <QScrollBar>
+#include <QAction>
+#include <QSlider>
+#include <QToolBar>
+#include <QStyle>
+#include <QLabel>
+#include <QToolButton>
+#include <QMenu>
+#include <QApplication>
+#include <QDesktopWidget>
 #include <limits>
 
 #define VOLUME_KNEE (88)

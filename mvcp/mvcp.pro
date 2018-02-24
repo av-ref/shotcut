@@ -1,9 +1,13 @@
 TEMPLATE = lib
 
 CONFIG += staticlib
-CONFIG += create_prl
+#CONFIG += create_prl
+
+DESTDIR = ../lib
 
 DEFINES += MVCP_EMBEDDED
+
+include(../shotcut-win.pri)
 
 HEADERS += \
     mvcp.h \

@@ -112,7 +112,7 @@ PopupCompleter::~PopupCompleter()
 {
 }
 
-void PopupCompleter::showEvent(QShowEvent */*event*/)
+void PopupCompleter::showEvent(QShowEvent *)
 {
 		listWidget_->setFocus();
 }
