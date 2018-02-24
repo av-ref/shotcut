@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Copyright (c) 2011-2018 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
@@ -51,15 +51,19 @@ Controller::Controller()
     , m_skipJackEvents(0)
 {
     LOG_DEBUG() << "begin";
-    QDir dir(QApplication::applicationDirPath());
-    dir.cdUp();
-    dir.cd("lib");
-    dir.cd("mlt");
     QDir data(QApplication::applicationDirPath());
     data.cdUp();
     data.cd("share");
     data.cd("mlt");
-    m_repo =Mlt::Factory::init(dir.path().toStdString().c_str(), data.path().toStdString().c_str());
+
+    QDir plugin(QApplication::applicationDirPath());
+    plugin.cdUp();
+    plugin.cd("lib");
+    plugin.cd("mlt");
+
+    m_repo =Mlt::Factory::init(plugin.absolutePath().toStdString().c_str(),
+                               data.absolutePath().toStdString().c_str());
+//    m_repo =Mlt::Factory::init("/usr/lib/x86_64-linux-gnu/mlt/");
 //    m_repo = Mlt::Factory::init();
     m_profile = new Mlt::Profile("atsc_1080p_25");
     m_filtersClipboard.reset(new Mlt::Producer(profile(), "color", "black"));

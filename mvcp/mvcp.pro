@@ -7,7 +7,7 @@ DESTDIR = ../lib
 
 DEFINES += MVCP_EMBEDDED
 
-include(../shotcut-win.pri)
+win32 : include(../shotcut-win.pri)
 
 HEADERS += \
     mvcp.h \

@@ -11,7 +11,7 @@ DEFINES += CUTELOGGER_LIBRARY Logger_STATIC
 
 INCLUDEPATH +=  $$PWD/include
 
-include( $$PWD/../shotcut-win.pri)
+win32 : include( $$PWD/../shotcut-win.pri)
 
 SOURCES += $$PWD/src/Logger.cpp \
             $$PWD/src/AbstractAppender.cpp \
