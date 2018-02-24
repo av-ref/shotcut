@@ -37,3 +37,4 @@ android {
     SOURCES +=  $$PWD/src/AndroidAppender.cpp
     HEADERS +=  $$PWD/include/AndroidAppender.h
 }
+OTHER_FILES += CMakeLists.txt

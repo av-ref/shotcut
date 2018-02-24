@@ -30,3 +30,4 @@ SOURCES += \
     mvcp_parser.c \
     mvcp_notifier.c
 
+OTHER_FILES += CMakeLists.txt

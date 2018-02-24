@@ -6,3 +6,4 @@ SUBDIRS = CuteLogger mvcp src
 src.depends = CuteLogger mvcp
 
 
+OTHER_FILES += CMakeLists.txt

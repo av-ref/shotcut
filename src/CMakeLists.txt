@@ -1,17 +1,10 @@
 ﻿
 
-
-
-#QT       += multimedia websockets quickwidgets
-#QT       += qml-private core-private quick-private gui-private
-
 set(target_name shotcut)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-
-find_package(mlt REQUIRED)
 
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
@@ -19,14 +12,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 FIND_PACKAGE( Mlt COMPONENTS mlt mlt++ REQUIRED )
 
-message(STATUS "include " ${MLT_mlt_INCLUDE_DIR})
+message(STATUS "include " ${MLT_INCLUDE_DIR})
 if(WIN32)
     include_directories(${MLT_mlt++_INCLUDE_DIR}/mlt++})
     include_directories(${MLT_mlt_INCLUDE_DIR}/framework})
 else(WIN32)
-include_directories(/usr/include/mlt++)
-include_directories(/usr/include/mlt)
-include_directories(${MLT_INCLUDE_DIRS})
+#    include_directories(${MLT_INCLUDE_DIRS})
+    include_directories(/home/tom/workspace_qml/build/include/mlt)
 endif(WIN32)
 
 set(SHOTCUT_VERSION "2.6.5")
@@ -34,7 +26,7 @@ configure_file( ../config.in.h ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 include_directories(${CMAKE_BINARY_DIR}/)
 
 set( SRCS
-        main.cpp
+    main.cpp
         mainwindow.cpp
         mltcontroller.cpp
         scrubbar.cpp
@@ -94,8 +86,8 @@ set( SRCS
         qmltypes/qmlmetadata.cpp
         qmltypes/timelineitems.cpp
         qmltypes/qmlprofile.cpp
-#        htmleditor/htmleditor.cpp
-#        htmleditor/highlighter.cpp
+    #    htmleditor/htmleditor.cpp
+    #    htmleditor/highlighter.cpp
         settings.cpp
         widgets/lineeditclear.cpp
         leapnetworklistener.cpp
@@ -139,13 +131,13 @@ set( SRCS
         jobs/ffprobejob.cpp
         jobs/ffmpegjob.cpp
         dialogs/unlinkedfilesdialog.cpp
+        dialogs/transcodedialog.cpp
         transportcontrol.cpp
 
 )
 
 set( HEADERS
-
-        mainwindow.h
+    mainwindow.h
         mltcontroller.h
         scrubbar.h
         openotherdialog.h
@@ -205,8 +197,8 @@ set( HEADERS
         qmltypes/qmlmetadata.h
         qmltypes/timelineitems.h
         qmltypes/qmlprofile.h
-#        htmleditor/htmleditor.h
-#        htmleditor/highlighter.h
+    #    htmleditor/htmleditor.h
+    #    htmleditor/highlighter.h
         settings.h
         widgets/lineeditclear.h
         leapnetworklistener.h
@@ -252,11 +244,12 @@ set( HEADERS
         jobs/ffprobejob.h
         jobs/ffmpegjob.h
         dialogs/unlinkedfilesdialog.h
+        dialogs/transcodedialog.h
 )
 
 
 set( FORMS
-        mainwindow.ui
+    mainwindow.ui
         openotherdialog.ui
         widgets/plasmawidget.ui
         widgets/lissajouswidget.ui
@@ -286,8 +279,8 @@ set( FORMS
         mvcp/meltedserverdock.ui
         mvcp/meltedplaylistdock.ui
         dialogs/customprofiledialog.ui
-#        htmleditor/htmleditor.ui
-#        htmleditor/inserthtmldialog.ui
+    #    htmleditor/htmleditor.ui
+    #    htmleditor/inserthtmldialog.ui
         widgets/webvfxproducer.ui
         docks/timelinedock.ui
         widgets/lumamixtransition.ui
@@ -297,6 +290,7 @@ set( FORMS
         widgets/trackpropertieswidget.ui
         widgets/timelinepropertieswidget.ui
         dialogs/unlinkedfilesdialog.ui
+        dialogs/transcodedialog.ui
 )
 
 
@@ -309,37 +303,43 @@ set( RESOURCES
 qt5_add_resources(QRCS ${RESOURCES})
 
 
-#OTHER_FILES += \
-#../COPYING \
-#shotcut.rc \
-#../scripts/build-shotcut.sh \
-#../icons/shotcut.icns \
-#../scripts/shotcut.nsi \
-#../Info.plist \
-#../icons/dark/index.theme \
-#../icons/light/index.theme \
+#OTHER_FILES +=
+#../COPYING
+#shotcut.rc
+#../scripts/build-shotcut.sh
+#../icons/shotcut.icns
+#../scripts/shotcut.nsi
+#../Info.plist
+#../icons/dark/index.theme
+#../icons/light/index.theme
 
 set( TRANSLATIONS 
-../translations/shotcut_ca.ts
-../translations/shotcut_cs.ts
-../translations/shotcut_da.ts
-../translations/shotcut_de.ts
-../translations/shotcut_el.ts
-../translations/shotcut_en.ts
-../translations/shotcut_es.ts
-../translations/shotcut_fr.ts
-../translations/shotcut_gd.ts
-../translations/shotcut_it.ts
-../translations/shotcut_nl.ts
-../translations/shotcut_oc.ts
-../translations/shotcut_pl.ts
-../translations/shotcut_pt_BR.ts
-../translations/shotcut_pt_PT.ts
-../translations/shotcut_ru.ts
-../translations/shotcut_sk.ts
-../translations/shotcut_uk.ts
-../translations/shotcut_zh_CN.ts
-../translations/shotcut_zh_TW.ts
+    ../translations/shotcut_ca.ts
+    ../translations/shotcut_cs.ts
+    ../translations/shotcut_da.ts
+    ../translations/shotcut_de.ts
+    ../translations/shotcut_el.ts
+    ../translations/shotcut_en.ts
+    ../translations/shotcut_es.ts
+    ../translations/shotcut_fr.ts
+    ../translations/shotcut_gd.ts
+    ../translations/shotcut_hu.ts
+    ../translations/shotcut_it.ts
+    ../translations/shotcut_ja.ts
+    ../translations/shotcut_nb.ts
+    ../translations/shotcut_ne.ts
+    ../translations/shotcut_nl.ts
+    ../translations/shotcut_oc.ts
+    ../translations/shotcut_pl.ts
+    ../translations/shotcut_pt_BR.ts
+    ../translations/shotcut_pt_PT.ts
+    ../translations/shotcut_ru.ts
+    ../translations/shotcut_sk.ts
+    ../translations/shotcut_sl.ts
+    ../translations/shotcut_tr.ts
+    ../translations/shotcut_uk.ts
+    ../translations/shotcut_zh_CN.ts
+    ../translations/shotcut_zh_TW.ts
 )
 
 
@@ -357,68 +357,24 @@ set( TRANSLATIONS
 
 add_executable(${target_name} ${SRCS} ${QRCS} )
 
-target_link_libraries(${target_name} Logger mvcp mlt::mlt++ mlt::mlt
+target_link_libraries(${target_name} CuteLogger mvcp mlt::mlt++ mlt::mlt
         Qt5::Widgets Qt5::Core Qt5::Gui Qt5::Svg Qt5::Xml
         Qt5::OpenGL Qt5::Network Qt5::Qml Qt5::Quick Qt5::QuickWidgets Qt5::Sql
         Qt5::WebSockets Qt5::Multimedia)
 target_include_directories(${target_name}
     PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-#mac {
-#TARGET = Shotcut
-#ICON = ../icons/shotcut.icns
-#QMAKE_INFO_PLIST = ../Info.plist
-#
-## QMake from Qt 5.1.0 on OSX is messing with the environment in which it runs
-## pkg-config such that the PKG_CONFIG_PATH env var is not set.
-#isEmpty(MLT_PREFIX) {
-#MLT_PREFIX = /opt/local
-#}
-#INCLUDEPATH += $$MLT_PREFIX/include/mlt++
-#INCLUDEPATH += $$MLT_PREFIX/include/mlt
-#LIBS += -L$$MLT_PREFIX/lib -lmlt++ -lmlt
-#}
-#win32 {
-#CONFIG += windows rtti
-#isEmpty(MLT_PATH) {
-#message("MLT_PATH not set; using ..\\..\\... You can change this with 'qmake MLT_PATH=...'")
-#MLT_PATH = ..\\..\\..
-#}
-#INCLUDEPATH += $$MLT_PATH\\include\\mlt++ $$MLT_PATH\\include\\mlt
-#LIBS += -L$$MLT_PATH\\lib -lmlt++ -lmlt -lopengl32
-#CONFIG(debug, debug|release) {
-#INCLUDEPATH += $$PWD/../drmingw/include
-#LIBS += -L$$PWD/../drmingw/x64/lib -lexchndl
-#}
-#RC_FILE = shotcut.rc
-#}
-#unix:!mac {
-#QT += x11extras
-#CONFIG += link_pkgconfig
-#PKGCONFIG += mlt++
-#LIBS += -lX11
-#}
-#
-#unix:!mac:isEmpty(PREFIX) {
-#message("Install PREFIX not set; using /usr/local. You can change this with 'qmake PREFIX=...'")
-#PREFIX = /usr/local
-#}
-#win32:isEmpty(PREFIX) {
-#message("Install PREFIX not set; using C:\\Projects\\Shotcut. You can change this with 'qmake PREFIX=...'")
-#PREFIX = C:\\Projects\\Shotcut
-#}
 
-
-add_custom_command(
-        TARGET mltcore
-        POST_BUILD
-        COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/../share
-        COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/../share/shotcut
-        COMMAND cmake -E copy ${CMAKE_CURRENT_SOURCE_DIR}/qml ${CMAKE_BINARY_DIR}/../share/shotcut/
-        )
+#add_custom_command(
+#        TARGET share_qml
+#        POST_BUILD
+#        COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/../share
+#        COMMAND cmake -E make_directory ${CMAKE_BINARY_DIR}/../share/shotcut
+#        COMMAND cmake -E copy ${CMAKE_CURRENT_SOURCE_DIR}/qml ${CMAKE_BINARY_DIR}/../share/shotcut/
+#        )
 
 install(TARGETS ${target_name} EXPORT shotcut #install target: dll lib exe etc
-  LIBRARY DESTINATION lib/mlt
+  LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
   RUNTIME DESTINATION bin
   INCLUDES DESTINATION include

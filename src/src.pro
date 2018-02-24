@@ -62,3 +62,4 @@ qmlfiles.path = $$PREFIX/share/shotcut
 INSTALLS += qmlfiles
 
 
+OTHER_FILES += CMakeLists.txt

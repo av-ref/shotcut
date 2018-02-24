@@ -20,3 +20,4 @@ build/*
 .idea/*
 *.qmlc
 *.jsc
+/cmake-build-debug/
