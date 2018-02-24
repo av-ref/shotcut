@@ -1,7 +1,7 @@
 #ifndef CUTELOGGER_GLOBAL_H
 #define CUTELOGGER_GLOBAL_H
 
-#include <QtCore/qglobal.h>
+//#include <QtCore/qglobal.h>
 
 #if defined(Logger_STATIC)
 #  define CUTELOGGERSHARED_EXPORT

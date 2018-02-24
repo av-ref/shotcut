@@ -173,10 +173,10 @@ MainWindow::MainWindow()
 #endif
 #ifdef Q_OS_WIN
     // Fullscreen on Windows is not allowing popups and other app windows to appear.
-    delete ui->actionFullscreen;
-    ui->actionFullscreen = 0;
-    delete ui->actionEnter_Full_Screen;
-    ui->actionEnter_Full_Screen = 0;
+//    delete ui->actionFullscreen;
+//    ui->actionFullscreen = 0;
+//    delete ui->actionEnter_Full_Screen;
+//    ui->actionEnter_Full_Screen = 0;
 #endif
     setDockNestingEnabled(true);
     ui->statusBar->hide();

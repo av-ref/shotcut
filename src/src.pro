@@ -27,7 +27,7 @@ INCLUDEPATH += ../CuteLogger/include ../mvcp
 #    LIBS += -L../CuteLogger -L../mvcp
 #}
 LIBS += -L../lib
-LIBS += -lCuteLogger -lmvcp -lpthread
+LIBS += -lCuteLogger -lmvcp -lpthread_dll
 
 SHOTCUT_VERSION = 6.0.0
 #isEmpty(SHOTCUT_VERSION) {

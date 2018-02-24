@@ -44,12 +44,12 @@
 #ifdef QT_DEBUG
 //#   include <exchndl.h>
 #endif
-extern "C"
-{
-    // Inform the driver we could make use of the discrete gpu
-    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
-    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
-}
+//extern "C"
+//{
+//    // Inform the driver we could make use of the discrete gpu
+//    __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+//    __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+//}
 #endif
 
 static void mlt_log_handler(void *service, int mlt_level, const char *format, va_list args)
@@ -117,10 +117,10 @@ public:
     {}
 
     void init() {
-        QDir dir(QCoreApplication::applicationDirPath());
-        dir.cd("lib");
-        dir.cd("qt5");
-        addLibraryPath(dir.absolutePath());
+//        QDir dir(QCoreApplication::applicationDirPath());
+//        dir.cd("lib");
+//        dir.cd("qt5");
+//        addLibraryPath(dir.absolutePath());
         setOrganizationName("Meltytech");
         setOrganizationDomain("meltytech.com");
         setApplicationName("Shotcut");
@@ -135,11 +135,11 @@ public:
         QCommandLineParser parser;
         parser.addHelpOption();
         parser.addVersionOption();
-#ifndef Q_OS_WIN
+//#ifndef Q_OS_WIN
         QCommandLineOption fullscreenOption("fullscreen",
             QCoreApplication::translate("main", "Fill the screen with the Shotcut window."));
         parser.addOption(fullscreenOption);
-#endif
+//#endif
         QCommandLineOption noupgradeOption("noupgrade",
             QCoreApplication::translate("main", "Hide upgrade prompt and menu item."));
         parser.addOption(noupgradeOption);
@@ -154,11 +154,11 @@ public:
             QCoreApplication::translate("main", "A file to open."));
         qDebug()<<arguments();
         parser.process(arguments());
-#ifdef Q_OS_WIN
-        isFullScreen = false;
-#else
+//#ifdef Q_OS_WIN
+//        isFullScreen = false;
+//#else
         isFullScreen = parser.isSet(fullscreenOption);
-#endif
+//#endif
         setProperty("noupgrade", parser.isSet(noupgradeOption));
         if (!parser.value(appDataOption).isEmpty()) {
             appDirArg = parser.value(appDataOption);
@@ -170,7 +170,7 @@ public:
             resourceArg = parser.positionalArguments().first();
 
         // Startup logging.
-        dir = Settings.appDataLocation();
+        QDir dir = Settings.appDataLocation();
         if (!dir.exists()) dir.mkpath(dir.path());
         const QString logFileName = dir.filePath("shotcut-log.txt");
         QFile::remove(logFileName);
