@@ -3,8 +3,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 PROJECT(shotcut)
 
-include_directories(${CMAKE_SOURCE_DIR}/CuteLogger/include)
-include_directories(${CMAKE_SOURCE_DIR}/mvcp)
 
 #set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
@@ -38,15 +36,21 @@ else(WIN32)
         set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}  ${QtPath}/lib/cmake/${so})
         find_package(${so} REQUIRED)
     endforeach()
+    set(CMAKE_INSTALL_PREFIX "/home/tom/workspace_qml/build")
     set(CMAKE_PREFIX_PATH  ${CMAKE_PREFIX_PATH} /home/tom/workspace_qml/build/lib/cmake/mlt)
 endif(WIN32)
 
+
+#set(mlt_DIR "/home/tom/workspace_qml/build/lib/cmake/mlt")
+#FIND_PACKAGE( Mlt REQUIRED )
+#FIND_PACKAGE( Mlt++ REQUIRED )
+message(${Mlt_INCLUDE_DIR}/mlt)
 #set(CMAKE_PREFIX_PATH  ${CMAKE_PREFIX_PATH} /opt/Qt/Qt5.10.0/5.10.0/gcc_64/lib/cmake/Qt5)
 #message(${CMAKE_PREFIX_PATH})
 #find_package(Qt5 COMPONENTS ${QtMods} REQUIRED)
 
 
-message( "path in CMAKE_MODULE_PATH" )
+message( "path in CMAKE_PREFIX_PATH" )
 foreach( path ${CMAKE_PREFIX_PATH} )
     message( ${path} )
 endforeach( path )

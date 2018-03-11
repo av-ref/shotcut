@@ -1,6 +1,6 @@
-﻿CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
+﻿#CMAKE_MINIMUM_REQUIRED(VERSION 3.1)
 
-PROJECT(CuteLogger)
+#PROJECT(CuteLogger)
 
 FIND_PACKAGE(Qt5Core REQUIRED)
 
@@ -42,9 +42,9 @@ ADD_LIBRARY(${library_target} STATIC ${sources} ${includes})
 TARGET_LINK_LIBRARIES(${library_target} Qt5::Widgets Qt5::Core Qt5::Gui)
 #INSTALL(TARGETS ${library_target} DESTINATION lib)
 
-install(TARGETS ${library_target} EXPORT shotcut #install target: dll lib exe etc
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
-)
+#install(TARGETS ${library_target} EXPORT shotcut #install target: dll lib exe etc
+#  LIBRARY DESTINATION lib
+#  ARCHIVE DESTINATION lib
+#  RUNTIME DESTINATION bin
+#  INCLUDES DESTINATION include
+#)

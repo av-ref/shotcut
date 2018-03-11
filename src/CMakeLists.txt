@@ -10,20 +10,25 @@ include_directories(${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-FIND_PACKAGE( Mlt COMPONENTS mlt mlt++ REQUIRED )
-
 message(STATUS "include " ${MLT_INCLUDE_DIR})
 if(WIN32)
+    include_directories(${MLT_mlt_INCLUDE_DIR}})
     include_directories(${MLT_mlt++_INCLUDE_DIR}/mlt++})
     include_directories(${MLT_mlt_INCLUDE_DIR}/framework})
 else(WIN32)
-#    include_directories(${MLT_INCLUDE_DIRS})
-    include_directories(/home/tom/workspace_qml/build/include/mlt)
+    include_directories(${MLT_mlt_INCLUDE_DIR}})
+    include_directories(${MLT_mlt++_INCLUDE_DIR}/mlt++})
+    include_directories(${MLT_mlt_INCLUDE_DIR}/framework})
+#    include_directories(/home/tom/workspace_qml/build/include/mlt)
 endif(WIN32)
 
 set(SHOTCUT_VERSION "2.6.5")
 configure_file( ../config.in.h ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 include_directories(${CMAKE_BINARY_DIR}/)
+
+
+include_directories(${CMAKE_SOURCE_DIR}/CuteLogger/include)
+include_directories(${CMAKE_SOURCE_DIR}/mvcp)
 
 set( SRCS
     main.cpp
@@ -355,9 +360,15 @@ set( TRANSLATIONS
 #qt5_wrap_ui(uis ${FORMS})
 #qt5_generate_moc( ${HEADERS} mocs)
 
+
+INCLUDE_DIRECTORIES( /home/tom/workspace_qml/build/include/mlt )
+LINK_DIRECTORIES(/home/tom/workspace_qml/build/lib)
+
 add_executable(${target_name} ${SRCS} ${QRCS} )
 
-target_link_libraries(${target_name} CuteLogger mvcp mlt::mlt++ mlt::mlt
+target_link_libraries(${target_name}
+    CuteLogger mvcp
+    mlt mlt++ pthread m
         Qt5::Widgets Qt5::Core Qt5::Gui Qt5::Svg Qt5::Xml
         Qt5::OpenGL Qt5::Network Qt5::Qml Qt5::Quick Qt5::QuickWidgets Qt5::Sql
         Qt5::WebSockets Qt5::Multimedia)

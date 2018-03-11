@@ -32,9 +32,9 @@ SET(library_target mvcp)
 ADD_LIBRARY(mvcp STATIC ${sources} ${includes})
 #TARGET_LINK_LIBRARIES(${library_target} )
 #INSTALL(TARGETS ${library_target} DESTINATION lib)
-install(TARGETS mvcp EXPORT shotcut #install target: dll lib exe etc
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-  RUNTIME DESTINATION bin
-  INCLUDES DESTINATION include
-)
+#install(TARGETS mvcp EXPORT shotcut #install target: dll lib exe etc
+#  LIBRARY DESTINATION lib
+#  ARCHIVE DESTINATION lib
+#  RUNTIME DESTINATION bin
+#  INCLUDES DESTINATION include
+#)
