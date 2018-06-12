@@ -1,12 +1,10 @@
 ﻿
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-PROJECT(shotcut)
+PROJECT(shotcut_pro)
 
-include_directories(${CMAKE_SOURCE_DIR}/CuteLogger/include)
-include_directories(${CMAKE_SOURCE_DIR}/mvcp)
 
-#set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
 set(QtMods Qt5Core
     Qt5Widgets
@@ -24,13 +22,16 @@ set(QtMods Qt5Core
     Qt5Multimedia)
 
 if(WIN32)
-    set(CMAKE_INSTALL_PREFIX "F:/github.cpp-repo/mlt_shotcut_ffmpeg/install-vc")
-    set(QtPath "C:/Qt/Qt5.8.0-vc/5.8/msvc2015_64/")
-    set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH}
-        "F:/github.cpp-repo/mlt_shotcut_ffmpeg/install-vc/lib/cmake/mlt")
-    set(ThirdPartyPath "F:/github.cpp-repo/mlt_shotcut_ffmpeg/install-vc")
+    set(CMAKE_INSTALL_PREFIX "e:/workspace_ffmpeg/install-vc")
+    set(QtPath "C:/Qt/Qt5.9.0/5.9/msvc2015_64")
+    set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+        "e:/workspace_ffmpeg/build/lib/cmake/mlt")
+    set(ThirdPartyPath "e:/workspace_ffmpeg/build")
     link_directories( ${ThirdPartyPath}/lib )
-    INCLUDE_DIRECTORIES(${ThirdPartyPath}/include)
+    include_directories(${ThirdPartyPath}/include)
+    message(${ThirdPartyPath}/include)
+    set(mlt_DIR "e:/workspace_ffmpeg/build/lib/cmake/mlt")
+    set(mlt_root "e:/workspace_ffmpeg/build/")
 else(WIN32)
     set(QtPath "/opt/Qt/Qt5.7.0-linux/5.7/gcc_64/")
 endif(WIN32)
@@ -49,7 +50,7 @@ endforeach()
 
 message( "path in CMAKE_MODULE_PATH" )
 foreach( path ${CMAKE_PREFIX_PATH} )
-    message( ${path} )
+#    message( ${path} )
 endforeach( path )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib/mlt) #add_library(MODULE)
@@ -59,6 +60,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin) #add_library(SHARED)
 set(MLT_META_DATA_DIRECTORY ${CMAKE_BINARY_DIR}/share/mlt)
 set(MLT_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/lib/mlt)
 
+
+include_directories(${CMAKE_SOURCE_DIR}/CuteLogger/include)
+include_directories(${CMAKE_SOURCE_DIR}/mvcp)
 add_subdirectory(CuteLogger)
 add_subdirectory(mvcp)
 add_subdirectory(src)
