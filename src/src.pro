@@ -61,5 +61,7 @@ qmlfiles.files =  $$PWD/qml
 qmlfiles.path = $$PREFIX/share/shotcut
 INSTALLS += qmlfiles
 
+COPIES += qmlfiles
+
 
 OTHER_FILES += CMakeLists.txt
