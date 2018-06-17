@@ -31,6 +31,8 @@
 #include "controllers/filtercontroller.h"
 #include "qmltypes/qmlmetadata.h"
 
+#include <QApplication>
+
 namespace Mlt {
 
 static const int kThumbnailOutSeekFactor = 5;

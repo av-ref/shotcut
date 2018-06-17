@@ -44,6 +44,7 @@ SOURCES += main.cpp\
     mvcp/meltedplaylistmodel.cpp \
     mvcp/meltedplaylistdock.cpp \
     mvcp/meltedserverdock.cpp \
+    transportcontrol.cpp \
     widgets/colorwheel.cpp \
     models/attachedfiltersmodel.cpp \
     models/metadatamodel.cpp \
@@ -54,7 +55,7 @@ SOURCES += main.cpp\
     qmltypes/qmlapplication.cpp \
     qmltypes/qmlfile.cpp \
     qmltypes/qmlfilter.cpp \
-    qmltypes/qmlhtmleditor.cpp \
+#    qmltypes/qmlhtmleditor.cpp \
     qmltypes/qmlmetadata.cpp \
     qmltypes/timelineitems.cpp \
     qmltypes/qmlprofile.cpp \
@@ -79,6 +80,7 @@ SOURCES += main.cpp\
     jobs/abstractjob.cpp \
     jobs/meltjob.cpp \
     jobs/encodejob.cpp \
+    jobs/postjobaction.cpp \
     jobs/videoqualityjob.cpp \
     commands/playlistcommands.cpp \
     docks/scopedock.cpp \
@@ -104,7 +106,9 @@ SOURCES += main.cpp\
     jobs/ffmpegjob.cpp \
     dialogs/unlinkedfilesdialog.cpp \
     dialogs/transcodedialog.cpp \
-    transportcontrol.cpp
+    docks/keyframesdock.cpp \
+    qmltypes/qmlproducer.cpp \
+    models/keyframesmodel.cpp
 
 
 HEADERS  += mainwindow.h \
@@ -163,7 +167,7 @@ HEADERS  += mainwindow.h \
     qmltypes/qmlapplication.h \
     qmltypes/qmlfile.h \
     qmltypes/qmlfilter.h \
-    qmltypes/qmlhtmleditor.h \
+#    qmltypes/qmlhtmleditor.h \
     qmltypes/qmlmetadata.h \
     qmltypes/timelineitems.h \
     qmltypes/qmlprofile.h \
@@ -188,6 +192,7 @@ HEADERS  += mainwindow.h \
     jobs/abstractjob.h \
     jobs/meltjob.h \
     jobs/encodejob.h \
+    jobs/postjobaction.h \
     jobs/videoqualityjob.h \
     commands/playlistcommands.h \
     docks/scopedock.h \
@@ -214,7 +219,10 @@ HEADERS  += mainwindow.h \
     jobs/ffprobejob.h \
     jobs/ffmpegjob.h \
     dialogs/unlinkedfilesdialog.h \
-    dialogs/transcodedialog.h
+    dialogs/transcodedialog.h \
+    docks/keyframesdock.h \
+    qmltypes/qmlproducer.h \
+    models/keyframesmodel.h
 
 FORMS    += mainwindow.ui \
     openotherdialog.ui \
@@ -268,38 +276,13 @@ OTHER_FILES += \
     shotcut.rc \
     ../scripts/build-shotcut.sh \
     ../icons/shotcut.icns \
-    ../scripts/shotcut.nsi \
-    ../Info.plist \
+    ../packaging/windows/shotcut.nsi \
+    ../packaging/macos/Info.plist \
     ../icons/dark/index.theme \
     ../icons/light/index.theme \
-    ../snap/snapcraft.yaml \
-    ../snap/setup/gui/shotcut.desktop \
-    ../shotcut.appdata.xml
-
-TRANSLATIONS += \
-    ../translations/shotcut_ca.ts \
-    ../translations/shotcut_cs.ts \
-    ../translations/shotcut_da.ts \
-    ../translations/shotcut_de.ts \
-    ../translations/shotcut_el.ts \
-    ../translations/shotcut_en.ts \
-    ../translations/shotcut_es.ts \
-    ../translations/shotcut_fr.ts \
-    ../translations/shotcut_gd.ts \
-    ../translations/shotcut_hu.ts \
-    ../translations/shotcut_it.ts \
-    ../translations/shotcut_ja.ts \
-    ../translations/shotcut_nb.ts \
-    ../translations/shotcut_ne.ts \
-    ../translations/shotcut_nl.ts \
-    ../translations/shotcut_oc.ts \
-    ../translations/shotcut_pl.ts \
-    ../translations/shotcut_pt_BR.ts \
-    ../translations/shotcut_pt_PT.ts \
-    ../translations/shotcut_ru.ts \
-    ../translations/shotcut_sk.ts \
-    ../translations/shotcut_sl.ts \
-    ../translations/shotcut_tr.ts \
-    ../translations/shotcut_uk.ts \
-    ../translations/shotcut_zh_CN.ts \
-    ../translations/shotcut_zh_TW.ts
+    ../packaging/linux/appimage/appimage.yml \
+    ../packaging/linux/snap/snapcraft.yaml \
+    ../packaging/linux/snap/package.mak \
+    ../packaging/linux/org.shotcut.Shotcut.appdata.xml \
+    ../packaging/linux/org.shotcut.Shotcut.desktop \
+    ../packaging/linux/org.shotcut.Shotcut.xml

@@ -65,3 +65,4 @@ COPIES += qmlfiles
 
 
 OTHER_FILES += CMakeLists.txt
+OTHER_FILES += src_orig.pro
