@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Meltytech, LLC
+ * Copyright (c) 2013-2018 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -71,7 +71,9 @@ public:
         IsTransitionRole,/// clip only
         FileHashRole,    /// clip only
         SpeedRole,       /// clip only
-        IsFilteredRole
+        IsFilteredRole,
+        IsBottomVideoRole,/// track only
+        AudioIndexRole   /// clip only
     };
 
     explicit MultitrackModel(QObject *parent = 0);
@@ -88,7 +90,7 @@ public:
     QModelIndex makeIndex(int trackIndex, int clipIndex) const;
     QModelIndex parent(const QModelIndex &index) const;
     QHash<int, QByteArray> roleNames() const;
-    void audioLevelsReady(const QModelIndex &index);
+    Q_INVOKABLE void audioLevelsReady(const QModelIndex &index);
     bool createIfNeeded();
     void addBackgroundTrack();
     int addAudioTrack();
@@ -120,6 +122,8 @@ signals:
     void showStatusMessage(QString);
     void durationChanged();
     void filteredChanged();
+    void filterInChanged(int delta, Mlt::Filter*);
+    void filterOutChanged(int delta, Mlt::Filter*);
 
 public slots:
     void refreshTrackList();
@@ -187,12 +191,15 @@ private:
     void removeRegion(int trackIndex, int position, int length);
     void clearMixReferences(int trackIndex, int clipIndex);
     bool isFiltered(Mlt::Producer* producer = 0) const;
+    int getDuration();
+    void adjustServiceFilterDurations(Mlt::Service& service, int duration);
 
     friend class UndoHelper;
 
 private slots:
     void adjustBackgroundDuration();
-
+    void adjustTrackFilters();
+    void adjustClipFilters(Mlt::Producer& producer, int in, int out, int inDelta, int outDelta);
 };
 
 #endif // MULTITRACKMODEL_H

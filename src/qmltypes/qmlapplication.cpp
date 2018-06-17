@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Meltytech, LLC
- * Author: Brian Matherly <pez4brian@yahoo.com>
+ * Copyright (c) 2013-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -90,15 +89,6 @@ QString QmlApplication::OS()
 #endif
 }
 
-QString QmlApplication::numericLocale()
-{
-#ifdef Q_OS_WIN
-    return QLocale::system().name();
-#else
-    return QString::fromLatin1(::setlocale(LC_NUMERIC, NULL));
-#endif
-}
-
 QRect QmlApplication::mainWinRect()
 {
     return MAIN.geometry();
@@ -122,5 +112,18 @@ void QmlApplication::pasteFilters()
     MLT.pasteFilters(producer.data());
     MLT.refreshConsumer();
     emit QmlApplication::singleton().filtersPasted(MAIN.filterController()->attachedModel()->producer());
+}
+
+QString QmlApplication::timecode(int frames)
+{
+    if (MLT.producer() && MLT.producer()->is_valid())
+        return MLT.producer()->frames_to_time(frames, mlt_time_smpte);
+    else
+        return QString();
+}
+
+int QmlApplication::audioChannels()
+{
+    return MLT.audioChannels();
 }
 

@@ -1,0 +1,15 @@
+[Desktop Entry]
+Type=Application
+Name=Shotcut
+GenericName=Video Editor
+GenericName[de]=Video-Bearbeitungsprogramm
+GenericName[ru]=Видеоредактор
+Comment=Video Editor
+Comment[de]=Programm zum Bearbeiten und Abspielen von Videodateien.
+Comment[ru]=Видеоредактор
+Exec=shotcut %F
+Icon=org.shotcut.Shotcut
+Terminal=false
+Categories=AudioVideo;Video;AudioVideoEditing;
+Keywords=video;audio;editing;suite;mlt;4k;video4linux;blackmagic;decklink;
+MimeType=application/vnd.mlt+xml

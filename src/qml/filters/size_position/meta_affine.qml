@@ -9,5 +9,16 @@ Metadata {
     qml: 'ui_affine.qml'
     vui: 'vui_affine.qml'
     gpuAlt: 'movit.rect'
-    allowMultiple: false
+    keyframes {
+        allowAnimateIn: true
+        allowAnimateOut: true
+        simpleProperties: ['transition.rect']
+        parameters: [
+            Parameter {
+                name: qsTr('Position / Size')
+                property: 'transition.rect'
+                isSimple: true
+            }
+        ]
+    }
 }

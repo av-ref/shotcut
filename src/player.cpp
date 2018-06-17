@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
+ * Copyright (c) 2012-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -228,6 +227,9 @@ Player::Player(QWidget *parent)
     m_zoomFitAction = zoomMenu->addAction(
         QIcon::fromTheme("zoom-fit-best", QIcon(":/icons/oxygen/32x32/actions/zoom-fit-best")),
         tr("Zoom Fit"), this, SLOT(zoomFit()));
+    m_zoomOutAction10 = zoomMenu->addAction(
+        QIcon::fromTheme("zoom-out", QIcon(":/icons/oxygen/32x32/actions/zoom-out")),
+        tr("Zoom 10%"), this, SLOT(zoomOut10()));
     m_zoomOutAction25 = zoomMenu->addAction(
         QIcon::fromTheme("zoom-out", QIcon(":/icons/oxygen/32x32/actions/zoom-out")),
         tr("Zoom 25%"), this, SLOT(zoomOut25()));
@@ -289,8 +291,6 @@ void Player::connectTransport(const TransportControllable* receiver)
     connect(this, SIGNAL(fastForwarded()), receiver, SLOT(fastForward()));
     connect(this, SIGNAL(previousSought(int)), receiver, SLOT(previous(int)));
     connect(this, SIGNAL(nextSought(int)), receiver, SLOT(next(int)));
-    connect(this, SIGNAL(inChanged(int)), receiver, SLOT(setIn(int)));
-    connect(this, SIGNAL(outChanged(int)), receiver, SLOT(setOut(int)));
 }
 
 void Player::setupActions(QWidget* widget)
@@ -629,7 +629,7 @@ void Player::onFrameDisplayed(const SharedFrame& frame)
             m_playPosition = std::numeric_limits<int>::max();
         }
     }
-    if (position >= m_duration)
+    if (position >= m_duration - 1)
         emit endOfStream();
 }
 
@@ -651,16 +651,22 @@ void Player::updateSelection()
 
 void Player::onInChanged(int in)
 {
-    if (in != m_previousIn)
-        emit inChanged(in);
+    if (in != m_previousIn) {
+        int delta = in - MLT.producer()->get_in();
+        MLT.setIn(in);
+        emit inChanged(delta);
+    }
     m_previousIn = in;
     updateSelection();
 }
 
 void Player::onOutChanged(int out)
 {
-    if (out != m_previousOut)
-        emit outChanged(out);
+    if (out != m_previousOut) {
+        int delta = out - MLT.producer()->get_out();
+        MLT.setOut(out);
+        emit outChanged(delta);
+    }
     m_previousOut = out;
     m_playPosition = m_previousOut; // prevent O key from pausing
     updateSelection();
@@ -986,6 +992,11 @@ void Player::zoomOut25()
     setZoom(0.25f, m_zoomOutAction25->icon());
 }
 
+void Player::zoomOut10()
+{
+    setZoom(0.1f, m_zoomOutAction10->icon());
+}
+
 void Player::zoomIn()
 {
     setZoom(2.0f, m_zoomInAction->icon());
@@ -1001,6 +1012,8 @@ void Player::toggleZoom(bool checked)
         zoomOut50();
     else if (m_zoomToggleFactor == 0.25f)
         zoomOut25();
+    else if (m_zoomToggleFactor == 0.1f)
+        zoomOut10();
     else if (m_zoomToggleFactor == 2.0f)
         zoomIn();
 }

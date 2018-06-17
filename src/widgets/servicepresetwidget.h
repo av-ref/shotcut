@@ -1,6 +1,5 @@
-﻿/*
- * Copyright (c) 2012 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
+/*
+ * Copyright (c) 2012-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +19,7 @@
 #define SERVICEPRESETWIDGET_H
 
 #include <QWidget>
-#include <mlt++/MltProperties.h>
+#include <MltProperties.h>
 
 namespace Ui {
     class ServicePresetWidget;
@@ -35,8 +34,8 @@ public:
     ~ServicePresetWidget();
 
     void loadPresets();
-    void saveDefaultPreset(Mlt::Properties&);
-    void savePreset(Mlt::Properties*);
+    void saveDefaultPreset(const Mlt::Properties&);
+    void savePreset(const Mlt::Properties&);
 
 signals:
     void selected(void* properties);

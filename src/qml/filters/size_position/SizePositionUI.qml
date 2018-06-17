@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2014-2015 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
+ * Copyright (c) 2014-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,20 +23,28 @@ import Shotcut.Controls 1.0
 Item {
     property string fillProperty
     property string distortProperty
+    property string legacyRectProperty: null
     property string rectProperty
     property string valignProperty
     property string halignProperty
-    property var _locale: Qt.locale(application.numericLocale)
-    property rect filterRect: filter.getRect(rectProperty)
+    property rect filterRect
+    property string startValue: '_shotcut:startValue'
+    property string middleValue: '_shotcut:middleValue'
+    property string endValue:  '_shotcut:endValue'
 
     width: 350
     height: 180
 
     Component.onCompleted: {
+        filter.blockSignals = true
+        filter.set(middleValue, Qt.rect(0, 0, profile.width, profile.height))
+        filter.set(startValue, Qt.rect(0, 0, profile.width, profile.height))
+        filter.set(endValue, Qt.rect(0, 0, profile.width, profile.height))
         if (filter.isNew) {
             filter.set(fillProperty, 0)
             filter.set(distortProperty, 0)
-            filter.set(rectProperty,   '0/50%:50%x50%')
+
+            filter.set(rectProperty,   '0%/50%:50%x50%')
             filter.set(valignProperty, 'bottom')
             filter.set(halignProperty, 'left')
             filter.savePreset(preset.parameters, qsTr('Bottom Left'))
@@ -47,42 +54,136 @@ Item {
             filter.set(halignProperty, 'right')
             filter.savePreset(preset.parameters, qsTr('Bottom Right'))
 
-            filter.set(rectProperty,   '0/0:50%x50%')
+            filter.set(rectProperty,   '0%/0%:50%x50%')
             filter.set(valignProperty, 'top')
             filter.set(halignProperty, 'left')
             filter.savePreset(preset.parameters, qsTr('Top Left'))
 
-            filter.set(rectProperty,   '50%/0:50%x50%')
+            filter.set(rectProperty,   '50%/0%:50%x50%')
             filter.set(valignProperty, 'top')
             filter.set(halignProperty, 'right')
             filter.savePreset(preset.parameters, qsTr('Top Right'))
 
-            filter.set(rectProperty,   '0/0:100%x100%')
+            // Add some animated presets.
+            filter.set(valignProperty, 'middle')
+            filter.set(halignProperty, 'center')
+            filter.animateIn = profile.fps
+            filter.set(rectProperty,   '0=-100%/0%:100%x100%; :1.0=0%/0%:100%x100%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slide In From Left'))
+            filter.set(rectProperty,   '0=100%/0%:100%x100%; :1.0=0%/0%:100%x100%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slide In From Right'))
+            filter.set(rectProperty,   '0=0%/-100%:100%x100%; :1.0=0%/0%:100%x100%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slide In From Top'))
+            filter.set(rectProperty,   '0=0%/100%:100%x100%; :1.0=0%/0%:100%x100%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slide In From Bottom'))
+            filter.animateIn = 0
+            filter.animateOut = profile.fps
+            filter.set(rectProperty,   ':-1.0=0%/0%:100%x100%; -1=-100%/0%:100%x100%')
+            filter.savePreset(preset.parameters.concat('shotcut:animOut'), qsTr('Slide Out Left'))
+            filter.set(rectProperty,   ':-1.0=0%/0%:100%x100%; -1=100%/0%:100%x100%')
+            filter.savePreset(preset.parameters.concat('shotcut:animOut'), qsTr('Slide Out Right'))
+            filter.set(rectProperty,   ':-1.0=0%/0%:100%x100%; -1=0%/-100%:100%x100%')
+            filter.savePreset(preset.parameters.concat('shotcut:animOut'), qsTr('Slide Out Top'))
+            filter.set(rectProperty,   ':-1.0=0%/0%:100%x100%; -1=0%/100%:100%x100%')
+            filter.savePreset(preset.parameters.concat('shotcut:animOut'), qsTr('Slide Out Bottom'))
+            filter.set(fillProperty, 1)
+            filter.animateOut = 0
+            filter.animateIn = filter.duration
+            filter.set(rectProperty,   '0=0%/0%:100%x100%; -1=-5%/-5%:110%x110%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slow Zoom In'))
+            filter.set(rectProperty,   '0=-5%/-5%:110%x110%; -1=0%/0%:100%x100%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slow Zoom Out'))
+            filter.set(rectProperty,   '0=-5%/-5%:110%x110%; -1=-10%/-5%:110%x110%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slow Pan Left'))
+            filter.set(rectProperty,   '0=-5%/-5%:110%x110%; -1=0%/-5%:110%x110%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slow Pan Right'))
+            filter.set(rectProperty,   '0=-5%/-5%:110%x110%; -1=-5%/-10%:110%x110%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slow Pan Up'))
+            filter.set(rectProperty,   '0=-5%/-5%:110%x110%; -1=-5%/0%:110%x110%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slow Pan Down'))
+            filter.set(rectProperty,   '0=0%/0%:100%x100%; -1=-10%/-10%:110%x110%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slow Zoom In, Pan Up Left'))
+            filter.set(rectProperty,   '0=0%/0%:100%x100%; -1=0%/0%:110%x110%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slow Zoom In, Pan Down Right'))
+            filter.set(rectProperty,   '0=-10%/0%:110%x110%; -1=0%/0%:100%x100%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slow Zoom Out, Pan Up Right'))
+            filter.set(rectProperty,   '0=0%/-10%:110%x110%; -1=0%/0%:100%x100%')
+            filter.savePreset(preset.parameters.concat('shotcut:animIn'), qsTr('Slow Zoom Out, Pan Down Left'))
+            filter.animateIn = 0
+            filter.resetProperty(rectProperty)
+
+            // Add default preset.
+            filter.set(rectProperty,   '0%/0%:100%x100%')
             filter.set(valignProperty, 'top')
             filter.set(halignProperty, 'left')
             filter.savePreset(preset.parameters)
+        } else {
+            if (legacyRectProperty !== null) {
+                var old = filter.get(legacyRectProperty)
+                if (old && old.length > 0) {
+                    filter.resetProperty(legacyRectProperty)
+                    filter.set(rectProperty, old)
+                }
+            }
+            filterRect = filter.getRect(rectProperty)
+            filter.set(middleValue, filter.getRect(rectProperty, filter.animateIn + 1))
+            if (filter.animateIn > 0)
+                filter.set(startValue, filter.getRect(rectProperty, 0))
+            if (filter.animateOut > 0)
+                filter.set(endValue, filter.getRect(rectProperty, filter.duration - 1))
         }
+        filter.blockSignals = false
         setControls()
+        setKeyframedControls()
+        filter.changed()
     }
 
-    function setFilter() {
+    function getPosition() {
+        return Math.max(producer.position - (filter.in - producer.in), 0)
+    }
+
+    function setFilter(position, force) {
         var x = parseFloat(rectX.text)
         var y = parseFloat(rectY.text)
         var w = parseFloat(rectW.text)
         var h = parseFloat(rectH.text)
-        if (x !== filterRect.x ||
+        if (force ||
+            x !== filterRect.x ||
             y !== filterRect.y ||
             w !== filterRect.width ||
-            h !== filterRect.height) {
+            h !== filterRect.height)
+        {
             filterRect.x = x
             filterRect.y = y
             filterRect.width = w
             filterRect.height = h
-            filter.set(rectProperty, '%1%/%2%:%3%x%4%'
-                       .arg((x / profile.width * 100).toLocaleString(_locale))
-                       .arg((y / profile.height * 100).toLocaleString(_locale))
-                       .arg((w / profile.width * 100).toLocaleString(_locale))
-                       .arg((h / profile.height * 100).toLocaleString(_locale)))
+
+            if (position !== null) {
+                if (position <= 0 && filter.animateIn > 0)
+                    filter.set(startValue, filterRect)
+                else if (position >= filter.duration - 1 && filter.animateOut > 0)
+                    filter.set(endValue, filterRect)
+                else
+                    filter.set(middleValue, filterRect)
+            }
+
+            if (filter.animateIn > 0 || filter.animateOut > 0) {
+                filter.resetProperty(rectProperty)
+                positionKeyframesButton.checked = false
+                if (filter.animateIn > 0) {
+                    filter.set(rectProperty, filter.getRect(startValue), 1.0, 0)
+                    filter.set(rectProperty, filter.getRect(middleValue), 1.0, filter.animateIn - 1)
+                }
+                if (filter.animateOut > 0) {
+                    filter.set(rectProperty, filter.getRect(middleValue), 1.0, filter.duration - filter.animateOut)
+                    filter.set(rectProperty, filter.getRect(endValue), 1.0, filter.duration - 1)
+                }
+            } else if (!positionKeyframesButton.checked) {
+                filter.resetProperty(rectProperty)
+                filter.set(rectProperty, filter.getRect(middleValue))
+            } else if (position !== null) {
+                filter.set(rectProperty, filterRect, 1.0, position)
+            }
         }
     }
 
@@ -109,12 +210,24 @@ Item {
             bottomRadioButton.checked = true
     }
 
+    function setKeyframedControls() {
+        var position = getPosition()
+        var newValue = filter.getRect(rectProperty, position)
+        if (filterRect !== newValue)
+            filterRect = newValue
+        var enabled = position <= 0 || (position >= (filter.animateIn - 1) && position <= (filter.duration - filter.animateOut)) || position >= (filter.duration - 1)
+        rectX.enabled = enabled
+        rectY.enabled = enabled
+        rectW.enabled = enabled
+        rectH.enabled = enabled
+    }
+
     ExclusiveGroup { id: sizeGroup }
     ExclusiveGroup { id: halignGroup }
     ExclusiveGroup { id: valignGroup }
 
     GridLayout {
-        columns: 5
+        columns: 6
         anchors.fill: parent
         anchors.margins: 8
 
@@ -125,8 +238,19 @@ Item {
         Preset {
             id: preset
             parameters: [fillProperty, distortProperty, rectProperty, halignProperty, valignProperty]
-            Layout.columnSpan: 4
-            onPresetSelected: setControls()
+            Layout.columnSpan: 5
+            onBeforePresetLoaded: {
+                filter.resetProperty(rectProperty)
+            }
+            onPresetSelected: {
+                setControls()
+                filterRect = filter.getRect(rectProperty, getPosition())
+                filter.set(middleValue, filter.getRect(rectProperty, filter.animateIn + 1))
+                if (filter.animateIn > 0)
+                    filter.set(startValue, filter.getRect(rectProperty, 0))
+                if (filter.animateOut > 0)
+                    filter.set(endValue, filter.getRect(rectProperty, filter.duration - 1))
+            }
         }
 
         Label {
@@ -134,76 +258,109 @@ Item {
             Layout.alignment: Qt.AlignRight
         }
         RowLayout {
-            Layout.columnSpan: 4
+            Layout.columnSpan: 3
             TextField {
                 id: rectX
-                text: filterRect.x
+                text: filterRect.x.toFixed()
                 horizontalAlignment: Qt.AlignRight
-                onEditingFinished: setFilter()
+                onEditingFinished: setFilter(getPosition())
             }
             Label { text: ',' }
             TextField {
                 id: rectY
-                text: filterRect.y
+                text: filterRect.y.toFixed()
                 horizontalAlignment: Qt.AlignRight
-                onEditingFinished: setFilter()
+                onEditingFinished: setFilter(getPosition())
             }
         }
+        UndoButton {
+            onClicked: {
+                rectX.text = rectY.text = 0
+                setFilter(getPosition())
+            }
+        }
+        KeyframesButton {
+            id: positionKeyframesButton
+            checked: filter.keyframeCount(rectProperty) > 0
+            onToggled: {
+                if (checked) {
+                    filter.clearSimpleAnimation(rectProperty)
+                    filter.set(rectProperty, filterRect, 1.0, getPosition())
+                } else {
+                    filter.resetProperty(rectProperty)
+                    filter.set(rectProperty, filterRect)
+                }
+            }
+        }
+
         Label {
             text: qsTr('Size')
             Layout.alignment: Qt.AlignRight
         }
         RowLayout {
-            Layout.columnSpan: 4
+            Layout.columnSpan: 3
             TextField {
                 id: rectW
-                text: filterRect.width
+                text: filterRect.width.toFixed()
                 horizontalAlignment: Qt.AlignRight
-                onEditingFinished: setFilter()
+                onEditingFinished: setFilter(getPosition())
             }
             Label { text: 'x' }
             TextField {
                 id: rectH
-                text: filterRect.height
+                text: filterRect.height.toFixed()
                 horizontalAlignment: Qt.AlignRight
-                onEditingFinished: setFilter()
+                onEditingFinished: setFilter(getPosition())
             }
         }
+        UndoButton {
+            onClicked: {
+                rectW.text = profile.width
+                rectH.text = profile.height
+                setFilter(getPosition())
+            }
+        }
+        Item { Layout.fillWidth: true }
 
         Label {
             text: qsTr('Size mode')
             Layout.alignment: Qt.AlignRight
         }
-        RowLayout {
-            Layout.columnSpan: 4
-            RadioButton {
-                id: fitRadioButton
-                text: qsTr('Fit')
-                exclusiveGroup: sizeGroup
-                onClicked: {
-                    filter.set(fillProperty, 0)
-                    filter.set(distortProperty, 0)
-                }
-            }
-            RadioButton {
-                id: fillRadioButton
-                text: qsTr('Fill')
-                exclusiveGroup: sizeGroup
-                onClicked: {
-                    filter.set(fillProperty, 1)
-                    filter.set(distortProperty, 0)
-                }
-            }
-            RadioButton {
-                id: distortRadioButton
-                text: qsTr('Distort')
-                exclusiveGroup: sizeGroup
-                onClicked: {
-                    filter.set(fillProperty, 1)
-                    filter.set(distortProperty, 1)
-                }
+        RadioButton {
+            id: fitRadioButton
+            text: qsTr('Fit')
+            exclusiveGroup: sizeGroup
+            onClicked: {
+                filter.set(fillProperty, 0)
+                filter.set(distortProperty, 0)
             }
         }
+        RadioButton {
+            id: fillRadioButton
+            text: qsTr('Fill')
+            exclusiveGroup: sizeGroup
+            onClicked: {
+                filter.set(fillProperty, 1)
+                filter.set(distortProperty, 0)
+            }
+        }
+        RadioButton {
+            id: distortRadioButton
+            text: qsTr('Distort')
+            exclusiveGroup: sizeGroup
+            onClicked: {
+                filter.set(fillProperty, 1)
+                filter.set(distortProperty, 1)
+            }
+        }
+        UndoButton {
+            onClicked: {
+                fillRadioButton.checked = true
+                filter.set(fillProperty, 1)
+                filter.set(distortProperty, 0)
+            }
+        }
+        Item { Layout.fillWidth: true }
 
         Label {
             text: qsTr('Horizontal fit')
@@ -230,6 +387,12 @@ Item {
             enabled: fitRadioButton.checked
             onClicked: filter.set(halignProperty, 'right')
         }
+        UndoButton {
+            onClicked: {
+                leftRadioButton.checked = true
+                filter.set(halignProperty, 'left')
+            }
+        }
         Item { Layout.fillWidth: true }
 
         Label {
@@ -245,7 +408,7 @@ Item {
         }
         RadioButton {
             id: middleRadioButton
-            text: qsTr('Middle')
+            text: qsTr('Middle', 'Size and Position video filter')
             exclusiveGroup: valignGroup
             enabled: fitRadioButton.checked
             onClicked: filter.set(valignProperty, 'middle')
@@ -257,6 +420,12 @@ Item {
             enabled: fitRadioButton.checked
             onClicked: filter.set(valignProperty, 'bottom')
         }
+        UndoButton {
+            onClicked: {
+                topRadioButton.checked = true
+                filter.set(valignProperty, 'top')
+            }
+        }
         Item { Layout.fillWidth: true }
 
         Item { Layout.fillHeight: true }
@@ -264,10 +433,15 @@ Item {
 
     Connections {
         target: filter
-        onChanged: {
-            var newValue = filter.getRect(rectProperty)
-            if (filterRect !== newValue)
-                filterRect = newValue
-        }
+        onChanged: setKeyframedControls()
+        onInChanged: setFilter(null)
+        onOutChanged: setFilter(null)
+        onAnimateInChanged: setFilter(null, true)
+        onAnimateOutChanged: setFilter(null, true)
+    }
+
+    Connections {
+        target: producer
+        onPositionChanged: setKeyframedControls()
     }
 }

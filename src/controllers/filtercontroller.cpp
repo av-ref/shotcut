@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2014-2017 Meltytech, LLC
- * Author: Brian Matherly <code@brianmatherly.com>
+ * Copyright (c) 2014-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -64,6 +63,20 @@ void FilterController::loadFilterMetadata() {
                     meta->setPath(subdir);
                     meta->setParent(0);
                     addMetadata(meta);
+
+                    // Check if a keyframes minimum version is required.
+                    QScopedPointer<Mlt::Properties> mltMetadata(MLT.repository()->metadata(filter_type, meta->mlt_service().toLatin1().constData()));
+                    if (mltMetadata && mltMetadata->is_valid() && mltMetadata->get("version") && meta->keyframes()) {
+                        QString version = QString::fromLatin1(mltMetadata->get("version"));
+                        if (version.startsWith("lavfi"))
+                            version.remove(0, 5);
+                        meta->keyframes()->checkVersion(version);
+                        // MLT frei0r module did get mlt_animation support until v6.10 (6.9 while in development).
+                        if (meta->mlt_service().startsWith("frei0r.")) {
+                            if (mlt_version_get_major() < 6 || mlt_version_get_minor() < 9)
+                                meta->keyframes()->setDisabled();
+                        }
+                    }
                 }
             } else if (!meta) {
                 LOG_WARNING() << component.errorString();
@@ -131,7 +144,7 @@ void FilterController::setCurrentFilter(int attachedIndex, bool isNew)
     QmlFilter* filter = 0;
     if (meta) {
         m_mltFilter = m_attachedModel.getFilter(m_currentFilterIndex);
-        filter = new QmlFilter(m_mltFilter, meta);
+        filter = new QmlFilter(*m_mltFilter, meta);
         filter->setIsNew(isNew);
         connect(filter, SIGNAL(changed()), SLOT(onQmlFilterChanged()));
     }
@@ -139,6 +152,36 @@ void FilterController::setCurrentFilter(int attachedIndex, bool isNew)
     emit currentFilterAboutToChange();
     emit currentFilterChanged(filter, meta, m_currentFilterIndex);
     m_currentFilter.reset(filter);
+}
+
+void FilterController::onFadeInChanged()
+{
+    if (m_currentFilter) {
+        emit m_currentFilter->changed();
+        emit m_currentFilter->animateInChanged();
+    }
+}
+
+void FilterController::onFadeOutChanged()
+{
+    if (m_currentFilter) {
+        emit m_currentFilter->changed();
+        emit m_currentFilter->animateOutChanged();
+    }
+}
+
+void FilterController::onFilterInChanged(int delta, Mlt::Filter* filter)
+{
+    if (delta && m_currentFilter && (!filter || m_currentFilter->filter().get_filter() == filter->get_filter())) {
+        emit m_currentFilter->inChanged(delta);
+    }
+}
+
+void FilterController::onFilterOutChanged(int delta, Mlt::Filter* filter)
+{
+    if (delta && m_currentFilter && (!filter || m_currentFilter->filter().get_filter() == filter->get_filter())) {
+        emit m_currentFilter->outChanged(delta);
+    }
 }
 
 void FilterController::handleAttachedModelChange()

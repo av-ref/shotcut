@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2016 Meltytech, LLC
+ * Copyright (c) 2014-2018 Meltytech, LLC
  * Author: Brian Matherly <pez4brian@yahoo.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -28,7 +28,7 @@ Item {
     id: webvfxRoot
     width: 350
     height: 100
-    property string settingsSavePath: settings.savePath
+    property url settingsSavePath: 'file:///' + settings.savePath
 
     SystemPalette { id: activePalette; colorGroup: SystemPalette.Active }
     Shotcut.File { id: htmlFile }
@@ -82,8 +82,8 @@ Item {
             fileLabelTip.text = qsTr('No HTML file loaded. Click "Open" or "New" to load a file.')
             filter.set("disable", 1)
         }
-        filter.set('in', filter.producerIn)
-        filter.set('out', filter.producerOut)
+        filter.set('in', producer.in)
+        filter.set('out', producer.out)
     }
 
     FileDialog {

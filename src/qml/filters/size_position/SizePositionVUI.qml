@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Meltytech, LLC
+ * Copyright (c) 2014-2018 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,25 +25,78 @@ Flickable {
     property string distortProperty
     property string halignProperty
     property string valignProperty
-    property var _locale: Qt.locale(application.numericLocale)
 
     width: 400
     height: 200
     interactive: false
     clip: true
     property real zoom: (video.zoom > 0)? video.zoom : 1.0
-    property rect filterRect: filter.getRect(rectProperty)
+    property rect filterRect
+    property string startValue: '_shotcut:startValue'
+    property string middleValue: '_shotcut:middleValue'
+    property string endValue:  '_shotcut:endValue'
+
     contentWidth: video.rect.width * zoom
     contentHeight: video.rect.height * zoom
     contentX: video.offset.x
     contentY: video.offset.y
 
     function getAspectRatio() {
-        return (filter.get(fillProperty) === '1' && filter.get(distortProperty) === '0')? filter.producerAspect : 0.0
+        return (filter.get(fillProperty) === '1' && filter.get(distortProperty) === '0')? producer.sampleAspectRatio : 0.0
     }
 
     Component.onCompleted: {
-        rectangle.setHandles(filter.getRect(rectProperty))
+        filterRect = filter.getRect(rectProperty, getPosition())
+        rectangle.setHandles(filterRect)
+        setRectangleControl()
+    }
+
+    function getPosition() {
+        return Math.max(producer.position - (filter.in - producer.in), 0)
+    }
+
+    function setRectangleControl() {
+        var position = getPosition()
+        var newValue = filter.getRect(rectProperty, position)
+        if (filterRect !== newValue) {
+            filterRect = newValue
+            rectangle.setHandles(filterRect)
+        }
+        rectangle.enabled = position <= 0 || (position >= (filter.animateIn - 1) && position <= (filter.duration - filter.animateOut)) || position >= (filter.duration - 1)
+    }
+
+    function setFilter(position) {
+        var rect = rectangle.rectangle
+        filterRect.x = Math.round(rect.x / rectangle.widthScale)
+        filterRect.y = Math.round(rect.y / rectangle.heightScale)
+        filterRect.width = Math.round(rect.width / rectangle.widthScale)
+        filterRect.height = Math.round(rect.height / rectangle.heightScale)
+
+        if (position !== null) {
+            if (position <= 0 && filter.animateIn > 0)
+                filter.set(startValue, filterRect)
+            else if (position >= filter.duration - 1 && filter.animateOut > 0)
+                filter.set(endValue, filterRect)
+            else
+                filter.set(middleValue, filterRect)
+        }
+
+        if (filter.animateIn > 0 || filter.animateOut > 0) {
+            filter.resetProperty(rectProperty)
+            if (filter.animateIn > 0) {
+                filter.set(rectProperty, filter.getRect(startValue), 1.0, 0)
+                filter.set(rectProperty, filter.getRect(middleValue), 1.0, filter.animateIn - 1)
+            }
+            if (filter.animateOut > 0) {
+                filter.set(rectProperty, filter.getRect(middleValue), 1.0, filter.duration - filter.animateOut)
+                filter.set(rectProperty, filter.getRect(endValue), 1.0, filter.duration - 1)
+            }
+        } else if (filter.keyframeCount(rectProperty) <= 0) {
+            filter.resetProperty(rectProperty)
+            filter.set(rectProperty, filter.getRect(middleValue))
+        } else if (position !== null) {
+            filter.set(rectProperty, filterRect, 1.0, position)
+        }
     }
 
     DropArea { anchors.fill: parent }
@@ -63,40 +116,25 @@ Flickable {
             aspectRatio: getAspectRatio()
             handleSize: Math.max(Math.round(8 / zoom), 4)
             borderSize: Math.max(Math.round(1.33 / zoom), 1)
-            onWidthScaleChanged: setHandles(filter.getRect(rectProperty))
-            onHeightScaleChanged: setHandles(filter.getRect(rectProperty))
-            onRectChanged:  {
-                filterRect.x = Math.round(rect.x / rectangle.widthScale)
-                filterRect.y = Math.round(rect.y / rectangle.heightScale)
-                filterRect.width = Math.round(rect.width / rectangle.widthScale)
-                filterRect.height = Math.round(rect.height / rectangle.heightScale)
-                filter.set(rectProperty, '%1%/%2%:%3%x%4%'
-                           .arg((filterRect.x / profile.width * 100).toLocaleString(_locale))
-                           .arg((filterRect.y / profile.height * 100).toLocaleString(_locale))
-                           .arg((filterRect.width / profile.width * 100).toLocaleString(_locale))
-                           .arg((filterRect.height / profile.height * 100).toLocaleString(_locale)))
-            }
+            onWidthScaleChanged: setHandles(filterRect)
+            onHeightScaleChanged: setHandles(filterRect)
+            onRectChanged: setFilter(getPosition())
         }
     }
 
     Connections {
         target: filter
         onChanged: {
-            var newRect = filter.getRect(rectProperty)
-            if (filterRect !== newRect) {
-                filterRect = newRect
-                rectangle.setHandles(filterRect)
-            }
+            setRectangleControl()
             if (rectangle.aspectRatio !== getAspectRatio()) {
                 rectangle.aspectRatio = getAspectRatio()
                 rectangle.setHandles(filterRect)
-                var rect = rectangle.rectangle
-                filter.set(rectProperty, '%1%/%2%:%3%x%4%'
-                           .arg((Math.round(rect.x / rectangle.widthScale) / profile.width * 100).toLocaleString(_locale))
-                           .arg((Math.round(rect.y / rectangle.heightScale) / profile.height * 100).toLocaleString(_locale))
-                           .arg((Math.round(rect.width / rectangle.widthScale) / profile.width * 100).toLocaleString(_locale))
-                           .arg((Math.round(rect.height / rectangle.heightScale) / profile.height * 100).toLocaleString(_locale)))
             }
         }
+    }
+
+    Connections {
+        target: producer
+        onPositionChanged: setRectangleControl()
     }
 }

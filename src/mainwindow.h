@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2011-2017 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
+ * Copyright (c) 2011-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -50,6 +49,7 @@ class FiltersDock;
 class TimelineDock;
 class AutoSaveFile;
 class QNetworkReply;
+class KeyframesDock;
 
 class MainWindow : public QMainWindow
 {
@@ -78,12 +78,15 @@ public:
     QString getHash(Mlt::Properties& properties) const;
     void setProfile(const QString& profile_name);
     QString fileName() const { return m_currentFile; }
+    bool isSourceClipMyProject(QString resource = MLT.resource());
+    bool keyframesDockIsVisible() const;
 
     void keyPressEvent(QKeyEvent*);
     void keyReleaseEvent(QKeyEvent *);
     void hideSetDataDirectory();
 
 signals:
+    void audioChannelsChanged();
     void producerOpened();
     void profileChanged();
     void openFailed(QString);
@@ -105,11 +108,13 @@ private:
     void writeSettings();
     void configureVideoWidget();
     void setCurrentFile(const QString &filename);
+    void changeAudioChannels(bool checked, int channels);
     void changeDeinterlacer(bool checked, const char* method);
     void changeInterpolation(bool checked, const char* method);
     bool checkAutoSave(QString &url);
     void stepLeftBySeconds(int sec);
     bool saveRepairedXmlFile(MltXmlChecker& checker, QString& fileName);
+    void setAudioChannels(int channels);
 
     Ui::MainWindow* ui;
     Player* m_player;
@@ -145,6 +150,7 @@ private:
     QScopedPointer<QAction> m_statusBarAction;
     QNetworkAccessManager m_network;
     QString m_upgradeUrl;
+    KeyframesDock* m_keyframesDock;
 
 #ifdef WITH_LIBLEAP
     LeapListener m_leapListener;
@@ -163,6 +169,7 @@ public slots:
     void showStatusMessage(const QString& message, int timeoutSeconds = 5);
     void seekPlaylist(int start);
     void seekTimeline(int position);
+    void seekKeyframes(int position);
     QWidget* loadProducerWidget(Mlt::Producer* producer);
     void onProducerOpened();
     void onGpuNotSupported();
@@ -191,6 +198,7 @@ private slots:
     void onTimelineDockTriggered(bool checked = true);
     void onHistoryDockTriggered(bool checked = true);
     void onFiltersDockTriggered(bool checked = true);
+    void onKeyframesDockTriggered(bool checked = true);
     void onPlaylistCreated();
     void onPlaylistLoaded();
     void onPlaylistCleared();
@@ -213,6 +221,9 @@ private slots:
     void on_actionEnter_Full_Screen_triggered();
     void on_actionRealtime_triggered(bool checked);
     void on_actionProgressive_triggered(bool checked);
+    void on_actionChannels1_triggered(bool checked);
+    void on_actionChannels2_triggered(bool checked);
+    void on_actionChannels6_triggered(bool checked);
     void on_actionOneField_triggered(bool checked);
     void on_actionLinearBlend_triggered(bool checked);
     void on_actionYadifTemporal_triggered(bool checked);
@@ -269,6 +280,7 @@ private slots:
     void on_actionAppDataSet_triggered();
     void on_actionAppDataShow_triggered();
     void on_actionNew_triggered();
+    void on_actionKeyboardShortcuts_triggered();
 };
 
 #define MAIN MainWindow::singleton()

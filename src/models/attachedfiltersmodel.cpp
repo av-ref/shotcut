@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
+ * Copyright (c) 2013-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,11 +52,6 @@ AttachedFiltersModel::AttachedFiltersModel(QObject *parent)
 {
 }
 
-bool AttachedFiltersModel::isReady()
-{
-    return m_producer;
-}
-
 Mlt::Filter* AttachedFiltersModel::getFilter(int row) const
 {
     Mlt::Filter* result = 0;
@@ -84,24 +78,15 @@ void AttachedFiltersModel::setProducer(Mlt::Producer* producer)
 
 QString AttachedFiltersModel::producerTitle() const
 {
-    if (m_producer && m_producer->is_valid()) {
-        if (m_producer->get(kShotcutTransitionProperty))
-            return tr("Transition");
-        if (m_producer->get(kTrackNameProperty))
-            return tr("Track: %1").arg(QString::fromUtf8(m_producer->get(kTrackNameProperty)));
-        if (tractor_type == m_producer->type())
-            return tr("Master");
-        if (m_producer->get(kShotcutCaptionProperty))
-            return QString::fromUtf8(m_producer->get(kShotcutCaptionProperty));
-        if (m_producer->get("resource"))
-            return Util::baseName(QString::fromUtf8(m_producer->get("resource")));
-    }
-    return QString();
+    if (m_producer)
+        return Util::producerTitle(*m_producer);
+    else
+        return QString();
 }
 
 bool AttachedFiltersModel::isProducerSelected() const
 {
-    return !m_producer.isNull();
+    return !m_producer.isNull() && m_producer->is_valid() && !m_producer->is_blank();
 }
 
 int AttachedFiltersModel::rowCount(const QModelIndex &) const
@@ -276,6 +261,9 @@ void AttachedFiltersModel::add(QmlMetadata* meta)
     if (filter->is_valid()) {
         if (!meta->objectName().isEmpty())
             filter->set(kShotcutFilterProperty, meta->objectName().toUtf8().constData());
+        filter->set_in_and_out(
+            m_producer->get(kFilterInProperty)? m_producer->get_int(kFilterInProperty) : m_producer->get_in(),
+            m_producer->get(kFilterOutProperty)? m_producer->get_int(kFilterOutProperty) : m_producer->get_out());
 
         // Put the filter after the last filter that is greater than or equal
         // in sort order.
@@ -403,7 +391,6 @@ void AttachedFiltersModel::reset(Mlt::Producer* producer)
     endResetModel();
     emit trackTitleChanged();
     emit isProducerSelectedChanged();
-    emit readyChanged();
 }
 
 void AttachedFiltersModel::producerChanged(mlt_properties, AttachedFiltersModel* model)

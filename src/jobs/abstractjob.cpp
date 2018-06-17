@@ -17,9 +17,13 @@
  */
 
 #include "abstractjob.h"
+#include "postjobaction.h"
 #include <QApplication>
 #include <QTimer>
 #include <Logger.h>
+#ifdef Q_OS_WIN
+#include <windows.h>
+#endif
 
 AbstractJob::AbstractJob(const QString& name)
     : QProcess(0)
@@ -27,10 +31,12 @@ AbstractJob::AbstractJob(const QString& name)
     , m_ran(false)
     , m_killed(false)
     , m_label(name)
+    , m_postJobAction(0)
 {
     setObjectName(name);
     connect(this, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(onFinished(int, QProcess::ExitStatus)));
     connect(this, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
+    connect(this, SIGNAL(started()), this, SLOT(onStarted()));
 }
 
 void AbstractJob::start()
@@ -85,6 +91,11 @@ QTime AbstractJob::estimateRemaining(int percent)
     return result;
 }
 
+void AbstractJob::setPostJobAction(PostJobAction* action)
+{
+    m_postJobAction.reset(action);
+}
+
 void AbstractJob::stop()
 {
     closeWriteChannel();
@@ -98,6 +109,9 @@ void AbstractJob::onFinished(int exitCode, QProcess::ExitStatus exitStatus)
     m_log.append(readAll());
     const QTime& time = QTime::fromMSecsSinceStartOfDay(m_time.elapsed());
     if (exitStatus == QProcess::NormalExit && exitCode == 0 && !m_killed) {
+        if (m_postJobAction) {
+            m_postJobAction->doAction();
+        }
         LOG_INFO() << "job succeeeded";
         m_log.append(QString("Completed successfully in %1\n").arg(time.toString()));
         emit progressUpdated(m_item, 100);
@@ -117,4 +131,17 @@ void AbstractJob::onReadyRead()
 {
     QString msg = readLine();
     appendToLog(msg);
+}
+
+void AbstractJob::onStarted()
+{
+#ifdef Q_OS_WIN
+    qint64 processId = QProcess::processId();
+    HANDLE processHandle = OpenProcess(PROCESS_SET_INFORMATION, FALSE, processId);
+    if(processHandle)
+    {
+        SetPriorityClass(processHandle, IDLE_PRIORITY_CLASS);
+        CloseHandle(processHandle);
+    }
+#endif
 }
