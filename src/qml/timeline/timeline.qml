@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Meltytech, LLC
+ * Copyright (c) 2013-2018 Meltytech, LLC
  * Author: Dan Dennedy <dan@dennedy.org>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -53,15 +53,6 @@ Rectangle {
         setZoom(1.0)
     }
 
-    function zoomByWheel(wheel) {
-        if (wheel.modifiers & Qt.ControlModifier) {
-            adjustZoom(wheel.angleDelta.y / 720)
-        }
-        if (wheel.modifiers & Qt.ShiftModifier) {
-            multitrack.trackHeight = Math.max(30, multitrack.trackHeight + wheel.angleDelta.y / 5)
-        }
-    }
-
     function makeTracksTaller() {
         multitrack.trackHeight += 20
     }
@@ -94,24 +85,24 @@ Rectangle {
         anchors.fill: parent
         acceptedButtons: Qt.RightButton
         onClicked: menu.popup()
-        onWheel: zoomByWheel(wheel)
+        onWheel: Logic.onMouseWheel(wheel)
     }
 
     DropArea {
         anchors.fill: parent
         onEntered: {
-            if (drag.formats.indexOf('application/mlt+xml') >= 0)
+            if (drag.formats.indexOf('application/vnd.mlt+xml') >= 0)
                 drag.acceptProposedAction()
         }
         onExited: Logic.dropped()
         onPositionChanged: {
-            if (drag.formats.indexOf('application/mlt+xml') >= 0)
+            if (drag.formats.indexOf('application/vnd.mlt+xml') >= 0)
                 Logic.dragging(drag, drag.text)
         }
         onDropped: {
-            if (drop.formats.indexOf('application/mlt+xml') >= 0) {
+            if (drop.formats.indexOf('application/vnd.mlt+xml') >= 0) {
                 if (currentTrack >= 0) {
-                    Logic.acceptDrop(drop.getDataAsString('application/mlt+xml'))
+                    Logic.acceptDrop(drop.getDataAsString('application/vnd.mlt+xml'))
                     drop.acceptProposedAction()
                 }
             }
@@ -192,6 +183,7 @@ Rectangle {
                             isLocked: model.locked
                             isVideo: !model.audio
                             isFiltered: model.filtered
+                            isBottomVideo: model.isBottomVideo
                             width: headerWidth
                             height: Logic.trackHeight(model.audio)
                             selected: false
@@ -269,9 +261,12 @@ Rectangle {
                     width: root.width - headerWidth
                     height: root.height - ruler.height - toolbar.height
         
-                    Item {
+                    MouseArea {
                         width: tracksContainer.width + headerWidth
                         height: trackHeaders.height + 30 // 30 is padding
+                        acceptedButtons: Qt.NoButton
+                        onWheel: Logic.onMouseWheel(wheel)
+
                         Column {
                             // These make the striped background for the tracks.
                             // It is important that these are not part of the track visual hierarchy;
@@ -407,7 +402,7 @@ Rectangle {
         }
         MenuItem {
             text: qsTr('Add Video Track')
-            shortcut: 'Ctrl+Y'
+            shortcut: 'Ctrl+I'
             onTriggered: timeline.addVideoTrack();
         }
         MenuItem {
@@ -424,6 +419,10 @@ Rectangle {
             checkable: true
             checked: settings.timelineRippleAllTracks
             onTriggered: settings.timelineRippleAllTracks = checked
+        }
+        MenuItem {
+            text: qsTr('Copy Timeline to Source')
+            onTriggered: timeline.copyToSource()
         }
         MenuSeparator {}
         MenuItem {
@@ -513,7 +512,7 @@ Rectangle {
                 // Show distance moved as time in a "bubble" help.
                 var track = tracksRepeater.itemAt(clip.trackIndex)
                 var delta = Math.round((clip.x - clip.originalX) / multitrack.scaleFactor)
-                var s = timeline.timecode(Math.abs(delta))
+                var s = application.timecode(Math.abs(delta))
                 // remove leading zeroes
                 if (s.substring(0, 3) === '00:')
                     s = s.substring(3)

@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2013-2018 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -27,7 +26,9 @@
 #include "qmltypes/qmlview.h"
 #include "shotcut_mlt_properties.h"
 #include "settings.h"
+#include "util.h"
 
+#include <QAction>
 #include <QtQml>
 #include <QtQuick>
 #include <Logger.h>
@@ -63,17 +64,15 @@ TimelineDock::TimelineDock(QWidget *parent) :
     m_quickView.setClearColor(palette().window().color());
 
     connect(&m_model, SIGNAL(modified()), this, SLOT(clearSelectionIfInvalid()));
+    connect(&m_model, SIGNAL(rowsInserted(QModelIndex,int,int)), SLOT(onRowsInserted(QModelIndex,int,int)));
+    connect(&m_model, SIGNAL(rowsRemoved(QModelIndex,int,int)), SLOT(onRowsRemoved(QModelIndex,int,int)));
 
-    m_quickView.setFocusPolicy(Qt::NoFocus);
     setWidget(&m_quickView);
 
     connect(this, SIGNAL(clipMoved(int,int,int,int)), SLOT(onClipMoved(int,int,int,int)), Qt::QueuedConnection);
     connect(MLT.videoWidget(), SIGNAL(frameDisplayed(const SharedFrame&)), this, SLOT(onShowFrame(const SharedFrame&)));
-#ifdef Q_OS_WIN
-    onVisibilityChanged(true);
-#else
-    connect(this, &QDockWidget::visibilityChanged, this, &TimelineDock::load);
-#endif
+    connect(this, SIGNAL(visibilityChanged(bool)), this, SLOT(load(bool)));
+    connect(this, SIGNAL(topLevelChanged(bool)), this, SLOT(onTopLevelChanged(bool)));
     LOG_DEBUG() << "end";
 }
 
@@ -92,11 +91,6 @@ void TimelineDock::setPosition(int position)
         m_position = m_model.tractor()->get_length();
         emit positionChanged();
     }
-}
-
-QString TimelineDock::timecode(int frames)
-{
-    return MLT.producer()->frames_to_time(frames, mlt_time_smpte);
 }
 
 Mlt::ClipInfo *TimelineDock::getClipInfo(int trackIndex, int clipIndex)
@@ -360,6 +354,23 @@ bool TimelineDock::isRipple() const
     return m_quickView.rootObject()->property("ripple").toBool();
 }
 
+void TimelineDock::copyToSource()
+{
+    if (model()->tractor() && model()->tractor()->is_valid()) {
+        QString xml = MLT.XML(model()->tractor());
+        Mlt::Producer producer(MLT.profile(), "xml-string", xml.toUtf8().constData());
+        if (producer.is_valid()) {
+            producer.set(kShotcutVirtualClip, 1);
+            producer.set(kExportFromProperty, 1);
+            QString resource = MAIN.fileName();
+            if (resource.isEmpty())
+                resource = tr("Untitled");
+            producer.set("resource", resource.toUtf8().constData());
+            MAIN.openCut(new Mlt::Producer(producer));
+        }
+    }
+}
+
 void TimelineDock::clearSelectionIfInvalid()
 {
     int count = clipCount(currentTrack());
@@ -473,6 +484,7 @@ void TimelineDock::append(int trackIndex)
         pulseLockButtonOnTrack(trackIndex);
         return;
     }
+    if (MAIN.isSourceClipMyProject()) return;
     if (MLT.isSeekableClip() || MLT.savedProducer()) {
         MAIN.undoStack()->push(
             new Timeline::AppendCommand(m_model, trackIndex,
@@ -515,6 +527,7 @@ void TimelineDock::lift(int trackIndex, int clipIndex)
         QString xml = MLT.XML(clip.data());
         MAIN.undoStack()->push(
             new Timeline::LiftCommand(m_model, trackIndex, clipIndex, xml));
+        setSelection();
     }
 }
 
@@ -605,7 +618,7 @@ void TimelineDock::emitSelectedFromSelection()
 
     int trackIndex = currentTrack();
     int clipIndex = selection().isEmpty()? 0 : selection().first();
-    Mlt::ClipInfo* info = getClipInfo(trackIndex, clipIndex);
+    QScopedPointer<Mlt::ClipInfo> info(getClipInfo(trackIndex, clipIndex));
     if (info && info->producer && info->producer->is_valid()) {
         delete m_updateCommand;
         m_updateCommand = new Timeline::UpdateCommand(*this, trackIndex, clipIndex, info->start);
@@ -614,12 +627,12 @@ void TimelineDock::emitSelectedFromSelection()
         // to the cut parent.
         info->producer->set(kFilterInProperty, info->frame_in);
         info->producer->set(kFilterOutProperty, info->frame_out);
+        info->producer->set(kPlaylistStartProperty, info->start);
         if (MLT.isImageProducer(info->producer))
             info->producer->set_in_and_out(info->cut->get_in(), info->cut->get_out());
         info->producer->set(kMultitrackItemProperty, QString("%1:%2").arg(clipIndex).arg(trackIndex).toLatin1().constData());
         m_ignoreNextPositionChange = true;
         emit selected(info->producer);
-        delete info;
     }
 }
 
@@ -639,6 +652,55 @@ void TimelineDock::commitTrimCommand()
         MAIN.undoStack()->push(m_trimCommand.take());
     }
     m_trimDelta = 0;
+}
+
+void TimelineDock::onRowsInserted(const QModelIndex& parent, int first, int last)
+{
+    Q_UNUSED(parent)
+    // Adjust selected clips for changed indices.
+    if (-1 == m_selection.selectedTrack) {
+        QList<int> newSelection;
+        int n = last - first + 1;
+        foreach (int i, m_selection.selectedClips) {
+            if (i < first)
+                newSelection << i;
+            else
+                newSelection << (i + n);
+        }
+        setSelection(newSelection);
+    }
+}
+
+void TimelineDock::onRowsRemoved(const QModelIndex& parent, int first, int last)
+{
+    Q_UNUSED(parent)
+    // Adjust selected clips for changed indices.
+    if (-1 == m_selection.selectedTrack) {
+        QList<int> newSelection;
+        int n = last - first + 1;
+        foreach (int i, m_selection.selectedClips) {
+            if (i < first)
+                newSelection << i;
+            else if (i > last)
+                newSelection << (i - n);
+        }
+        setSelection(newSelection);
+    }
+}
+
+void TimelineDock::detachAudio(int trackIndex, int clipIndex)
+{
+    if (!m_model.trackList().count())
+        return;
+    Q_ASSERT(trackIndex >= 0 && clipIndex >= 0);
+    QScopedPointer<Mlt::ClipInfo> info(getClipInfo(trackIndex, clipIndex));
+    if (info && info->producer && info->producer->is_valid() && !info->producer->is_blank()
+             && info->producer->get("audio_index") && info->producer->get_int("audio_index") >= 0) {
+        Mlt::Producer clip(MLT.profile(), "xml-string", MLT.XML(info->producer).toUtf8().constData());
+        clip.set_in_and_out(info->frame_in, info->frame_out);
+        MAIN.undoStack()->push(
+            new Timeline::DetachAudioCommand(m_model, trackIndex, clipIndex, info->start, MLT.XML(&clip)));
+    }
 }
 
 void TimelineDock::setTrackName(int trackIndex, const QString &value)
@@ -781,6 +843,7 @@ void TimelineDock::insert(int trackIndex, int position, const QString &xml)
         pulseLockButtonOnTrack(trackIndex);
         return;
     }
+    if (MAIN.isSourceClipMyProject()) return;
     if (MLT.isSeekableClip() || MLT.savedProducer() || !xml.isEmpty()) {
         QString xmlToUse = !xml.isEmpty()? xml
             : MLT.XML(MLT.isClip()? 0 : MLT.savedProducer());
@@ -800,6 +863,7 @@ void TimelineDock::overwrite(int trackIndex, int position, const QString &xml)
         pulseLockButtonOnTrack(trackIndex);
         return;
     }
+    if (MAIN.isSourceClipMyProject()) return;
     if (MLT.isSeekableClip() || MLT.savedProducer() || !xml.isEmpty()) {
         QString xmlToUse = !xml.isEmpty()? xml
             : MLT.XML(MLT.isClip()? 0 : MLT.savedProducer());
@@ -990,8 +1054,8 @@ void TimelineDock::load(bool force)
     if (m_quickView.source().isEmpty() || force) {
         QDir sourcePath = QmlUtilities::qmlDir();
         sourcePath.cd("timeline");
+        m_quickView.setFocusPolicy(isFloating()? Qt::NoFocus : Qt::StrongFocus);
         m_quickView.setSource(QUrl::fromLocalFile(sourcePath.filePath("timeline.qml")));
-        disconnect(this, SIGNAL(visibilityChanged(bool)), this, SLOT(onVisibilityChanged(bool)));
         connect(m_quickView.rootObject(), SIGNAL(currentTrackChanged()),
                 this, SIGNAL(currentTrackChanged()));
         connect(m_quickView.rootObject(), SIGNAL(clipClicked()),
@@ -1003,8 +1067,7 @@ void TimelineDock::load(bool force)
     }
 }
 
-void TimelineDock::onVisibilityChanged(bool visible)
+void TimelineDock::onTopLevelChanged(bool floating)
 {
-    if (visible)
-        load();
+    m_quickView.setFocusPolicy(floating? Qt::NoFocus : Qt::StrongFocus);
 }

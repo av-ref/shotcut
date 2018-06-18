@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2011-2018 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
  *
  * GL shader based on BSD licensed code from Peter Bengtsson:
  * http://www.fourcc.org/source/YUV420P-OpenGL-GLSLang.c
@@ -25,7 +24,8 @@
 #include <QUrl>
 #include <QOffscreenSurface>
 #include <QtQml>
-#include <mlt++/Mlt.h>
+#include <QQuickItem>
+#include <Mlt.h>
 #include <Logger.h>
 #include "glwidget.h"
 #include "settings.h"
@@ -179,6 +179,7 @@ void GLWidget::initializeGL()
 void GLWidget::setBlankScene()
 {
     setSource(QmlUtilities::blankVui());
+    m_savedQmlSource.clear();
 }
 
 void GLWidget::resizeGL(int width, int height)
@@ -627,6 +628,7 @@ int GLWidget::reconfigure(bool isMulti)
         m_consumer->set("real_time", MLT.realTime());
         m_consumer->set("mlt_image_format", "yuv422");
         m_consumer->set("color_trc", Settings.playerGamma().toLatin1().constData());
+        m_consumer->set("channels", property("audio_channels").toInt());
 
         if (isMulti) {
             m_consumer->set("terminate_on_pause", 0);
@@ -710,6 +712,13 @@ void GLWidget::onFrameDisplayed(const SharedFrame &frame)
     m_mutex.lock();
     m_sharedFrame = frame;
     m_mutex.unlock();
+    bool isVui = frame.get_int(kShotcutVuiMetaProperty);
+    if (!isVui && source() != QmlUtilities::blankVui()) {
+        m_savedQmlSource = source();
+        setSource(QmlUtilities::blankVui());
+    } else if (isVui && !m_savedQmlSource.isEmpty() && source() != m_savedQmlSource) {
+        setSource(m_savedQmlSource);
+    }
     quickWindow()->update();
 }
 
@@ -739,6 +748,7 @@ void GLWidget::setCurrentFilter(QmlFilter* filter, QmlMetadata* meta)
     rootContext()->setContextProperty("filter", filter);
     if (meta && QFile::exists(meta->vuiFilePath().toLocalFile())) {
         setSource(meta->vuiFilePath());
+        filter->producer().set(kShotcutVuiMetaProperty, 1);
     } else {
         setBlankScene();
     }

@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2017 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
+ * Copyright (c) 2013-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,6 +29,7 @@ Rectangle {
     property bool isLocked
     property bool isVideo
     property bool isFiltered
+    property bool isBottomVideo
     property bool selected: false
     property bool current: false
     signal clicked()
@@ -100,15 +100,15 @@ Rectangle {
             color: 'transparent'
             width: trackHeadRoot.width - trackHeadColumn.anchors.margins * 2
             radius: 2
-            border.color: trackNameMouseArea.containsMouse? activePalette.shadow : 'transparent'
+            border.color: (!timeline.isFloating() && trackNameMouseArea.containsMouse)? activePalette.shadow : 'transparent'
             height: nameEdit.height
             MouseArea {
                 id: trackNameMouseArea
                 height: parent.height
                 width: nameEdit.width
                 hoverEnabled: true
-                onClicked: {
-                    nameEdit.visible = true
+                onClicked: if (!timeline.isFloating()) {
+                    nameEdit.focus = true
                     nameEdit.selectAll()
                 }
             }
@@ -122,14 +122,13 @@ Rectangle {
             }
             TextField {
                 id: nameEdit
-                visible: false
+                visible: focus
                 width: trackHeadRoot.width - trackHeadColumn.anchors.margins * 2
                 text: trackName
                 onAccepted: {
                     timeline.setTrackName(index, text)
-                    visible = false
+                    focus = false
                 }
-                onFocusChanged: visible = focus
             }
         }
         RowLayout {
@@ -158,12 +157,14 @@ Rectangle {
             ToolButton {
                 id: compositeButton
                 visible: isVideo
+                enabled: !isBottomVideo
+                opacity: enabled? 1.0 : 0.5
                 implicitWidth: 20
                 implicitHeight: 20
                 iconName: isComposite ? 'merge' : 'split'
                 iconSource: isComposite ? 'qrc:///icons/oxygen/32x32/actions/merge.png' : 'qrc:///icons/oxygen/32x32/actions/split.png'
                 onClicked: timeline.setTrackComposite(index, !isComposite)
-                tooltip: isComposite? qsTr('Disable compositing') : qsTr('Composite')
+                tooltip: isComposite? qsTr('Disable compositing') : qsTr('Enable compositing')
             }
 
             ToolButton {

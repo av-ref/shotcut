@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2012-2017 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
+ * Copyright (c) 2012-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,8 +66,8 @@ public:
 signals:
     void endOfStream();
     void showStatusMessage(QString);
-    void inChanged(int);
-    void outChanged(int);
+    void inChanged(int delta);
+    void outChanged(int delta);
     void played(double speed);
     void paused();
     void stopped();
@@ -151,6 +150,7 @@ private:
     QAction* m_zoomOriginalAction;
     QAction* m_zoomOutAction50;
     QAction* m_zoomOutAction25;
+    QAction* m_zoomOutAction10;
     QAction* m_zoomInAction;
     float m_zoomToggleFactor;
     QTabBar* m_tabs;
@@ -178,6 +178,7 @@ private slots:
     void zoomOriginal();
     void zoomOut50();
     void zoomOut25();
+    void zoomOut10();
     void zoomIn();
     void toggleZoom(bool checked);
     void onFadeOutFinished();

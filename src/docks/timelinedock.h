@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2013-2018 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +52,6 @@ public:
     MultitrackModel* model() { return &m_model; }
     int position() const { return m_position; }
     void setPosition(int position);
-    Q_INVOKABLE QString timecode(int frames);
     Mlt::ClipInfo* getClipInfo(int trackIndex, int clipIndex);
     Mlt::Producer* producerForClip(int trackIndex, int clipIndex);
     int clipIndexAtPlayhead(int trackIndex = -1);
@@ -78,6 +76,8 @@ public:
     bool isRipple() const;
     Q_INVOKABLE bool isMultitrackSelected() const { return m_selection.isMultitrackSelected; }
     Q_INVOKABLE int selectedTrack() const { return m_selection.selectedTrack; }
+    Q_INVOKABLE bool isFloating() const { return QDockWidget::isFloating(); }
+    Q_INVOKABLE void copyToSource();
 
 signals:
     void currentTrackChanged();
@@ -137,6 +137,9 @@ public slots:
     void emitSelectedFromSelection();
     void remakeAudioLevels(int trackIndex, int clipIndex, bool force = true);
     void commitTrimCommand();
+    void onRowsInserted(const QModelIndex& parent, int first, int last);
+    void onRowsRemoved(const QModelIndex& parent, int first, int last);
+    void detachAudio(int trackIndex, int clipIndex);
 
 protected:
     void dragEnterEvent(QDragEnterEvent* event);
@@ -150,7 +153,6 @@ protected:
 private:
     bool isBlank(int trackIndex, int clipIndex);
     void pulseLockButtonOnTrack(int trackIndex);
-    void load(bool force = false);
 
     Ui::TimelineDock *ui;
     QQuickWidget m_quickView;
@@ -170,7 +172,8 @@ private:
     int m_trimDelta;
 
 private slots:
-    void onVisibilityChanged(bool visible);
+    void load(bool force = false);
+    void onTopLevelChanged(bool floating);
 };
 
 #endif // TIMELINEDOCK_H

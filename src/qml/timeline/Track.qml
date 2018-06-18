@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
+ * Copyright (c) 2013-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -82,6 +81,7 @@ Rectangle {
             fadeOut: model.fadeOut
             hash: model.hash
             speed: model.speed
+            audioIndex: model.audioIndex
             selected: trackRoot.isCurrentTrack && trackRoot.selection.indexOf(index) !== -1
 
             onClicked: trackRoot.clipClicked(clip, trackRoot);
@@ -127,10 +127,10 @@ Rectangle {
                     if (timeline.trimClipIn(trackRoot.DelegateModel.itemsIndex,
                                             clip.DelegateModel.itemsIndex, delta, toolbar.ripple)) {
                         // Show amount trimmed as a time in a "bubble" help.
-                        var s = timeline.timecode(Math.abs(clip.originalX))
+                        var s = application.timecode(Math.abs(clip.originalX))
                         s = '%1%2 = %3'.arg((clip.originalX < 0)? '-' : (clip.originalX > 0)? '+' : '')
                                        .arg(s.substring(3))
-                                       .arg(timeline.timecode(clipDuration))
+                                       .arg(application.timecode(clipDuration))
                         bubbleHelp.show(clip.x, trackRoot.y + trackRoot.height, s)
                     } else {
                         clip.originalX -= originalDelta
@@ -153,10 +153,10 @@ Rectangle {
                     if (timeline.trimClipOut(trackRoot.DelegateModel.itemsIndex,
                                              clip.DelegateModel.itemsIndex, delta, toolbar.ripple)) {
                         // Show amount trimmed as a time in a "bubble" help.
-                        var s = timeline.timecode(Math.abs(clip.originalX))
+                        var s = application.timecode(Math.abs(clip.originalX))
                         s = '%1%2 = %3'.arg((clip.originalX < 0)? '+' : (clip.originalX > 0)? '-' : '')
                                        .arg(s.substring(3))
-                                       .arg(timeline.timecode(clipDuration))
+                                       .arg(application.timecode(clipDuration))
                         bubbleHelp.show(clip.x + clip.width, trackRoot.y + trackRoot.height, s)
                     } else {
                         clip.originalX -= originalDelta

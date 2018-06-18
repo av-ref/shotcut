@@ -23,7 +23,7 @@
 #include <QString>
 #include <QUuid>
 #include <QScopedPointer>
-#include <mlt++/Mlt.h>
+#include <Mlt.h>
 #include "transportcontrol.h"
 
 // forward declarations
@@ -83,6 +83,7 @@ public:
     QString XML(Service* service = 0, bool withProfile = false);
     int consumerChanged();
     void setProfile(const QString& profile_name);
+    void setAudioChannels(int audioChannels);
     QString resource() const;
     bool isSeekable(Mlt::Producer* p = 0) const;
     bool isClip() const;
@@ -114,6 +115,9 @@ public:
         return m_filtersClipboard->is_valid() && m_filtersClipboard->filter_count() > 0;
     }
 
+    int audioChannels() const {
+        return m_audioChannels;
+    }
     Mlt::Repository* repository() const {
         return m_repo;
     }
@@ -136,6 +140,7 @@ public:
         return m_savedProducer.data();
     }
     void setSavedProducer(Mlt::Producer* producer);
+    static Mlt::Filter* getFilter(const QString& name, Mlt::Service* service);
 
 protected:
     Mlt::Repository* m_repo = nullptr;
@@ -144,6 +149,7 @@ protected:
 
 private:
     Mlt::Profile* m_profile = nullptr;
+    int m_audioChannels;
     Mlt::Filter* m_jackFilter = nullptr;
     QString m_url;
     double m_volume;

@@ -1,6 +1,5 @@
-﻿/*
- * Copyright (c) 2012-2017 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
+/*
+ * Copyright (c) 2012-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,7 +19,7 @@
 #include "colorbarswidget.h"
 #include "ui_colorbarswidget.h"
 #include "util.h"
-#include <mlt++/MltProfile.h>
+#include <MltProfile.h>
 
 static const char* kParamType = "0";
 static const char* kParamAspect = "1";
@@ -72,10 +71,10 @@ Mlt::Producer* ColorBarsWidget::newProducer(Mlt::Profile& profile)
     return p;
 }
 
-Mlt::Properties* ColorBarsWidget::getPreset() const
+Mlt::Properties ColorBarsWidget::getPreset() const
 {
-    Mlt::Properties* p = new Mlt::Properties;
-    p->set(kParamType, ui->comboBox->currentIndex());
+    Mlt::Properties p;
+    p.set(kParamType, ui->comboBox->currentIndex());
     return p;
 }
 

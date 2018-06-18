@@ -1,6 +1,5 @@
 /*
- * Copyright (c) 2013-2016 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
+ * Copyright (c) 2013-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,6 +43,7 @@ Rectangle {
     property bool selected: false
     property string hash: ''
     property double speed: 1.0
+    property string audioIndex: ''
 
     signal clicked(var clip)
     signal moved(var clip)
@@ -143,7 +143,7 @@ Rectangle {
 
     Row {
         id: waveform
-        visible: !isBlank && settings.timelineShowWaveforms && !trackHeaderRepeater.itemAt(trackIndex).isMute
+        visible: !isBlank && settings.timelineShowWaveforms && !trackHeaderRepeater.itemAt(trackIndex).isMute && (parseInt(audioIndex) > -1 || audioIndex === 'all')
         height: isAudio? parent.height : parent.height / 2
         anchors.left: parent.left
         anchors.bottom: parent.bottom
@@ -259,6 +259,10 @@ Rectangle {
         drag.axis: Drag.XAxis
         property int startX
         onPressed: {
+            if (!doubleClickTimer.running) {
+                doubleClickTimer.restart()
+                doubleClickTimer.isFirstRelease = true
+            }
             root.stopScrolling = true
             originalX = parent.x
             originalTrackIndex = trackIndex
@@ -275,19 +279,29 @@ Rectangle {
             parent.dragged(clipRoot, mouse)
         }
         onReleased: {
-            root.stopScrolling = false
-            parent.y = 0
-            var delta = parent.x - startX
-            if (Math.abs(delta) >= 1.0 || trackIndex !== originalTrackIndex) {
-                parent.moved(clipRoot)
-                originalX = parent.x
-                originalTrackIndex = trackIndex
+            if (!doubleClickTimer.isFirstRelease && doubleClickTimer.running) {
+                timeline.position = clipRoot.x / multitrack.scaleFactor
+                doubleClickTimer.stop()
             } else {
-                parent.dropped(clipRoot)
+                doubleClickTimer.isFirstRelease = false
+
+                root.stopScrolling = false
+                parent.y = 0
+                var delta = parent.x - startX
+                if (Math.abs(delta) >= 1.0 || trackIndex !== originalTrackIndex) {
+                    parent.moved(clipRoot)
+                    originalX = parent.x
+                    originalTrackIndex = trackIndex
+                } else {
+                    parent.dropped(clipRoot)
+                }
             }
         }
-        onDoubleClicked: timeline.position = clipRoot.x / multitrack.scaleFactor
-        onWheel: zoomByWheel(wheel)
+        Timer {
+            id: doubleClickTimer
+            interval: 500 //ms
+            property bool isFirstRelease
+        }
 
         MouseArea {
             anchors.fill: parent
@@ -366,14 +380,15 @@ Rectangle {
             onPositionChanged: {
                 if (mouse.buttons === Qt.LeftButton) {
                     var delta = Math.round((parent.x - startX) / timeScale)
-                    var duration = startFadeIn + delta
+                    var duration = Math.max(0, startFadeIn + delta)
                     timeline.fadeIn(trackIndex, index, duration)
 
                     // Show fade duration as time in a "bubble" help.
-                    var s = timeline.timecode(Math.max(duration, 0))
+                    var s = application.timecode(duration)
                     bubbleHelp.show(clipRoot.x, trackRoot.y + clipRoot.height, s.substring(6))
                 }
             }
+            onDoubleClicked: timeline.fadeIn(trackIndex, index, (fadeIn > 0) ? 0 : Math.round(profile.fps))
         }
         SequentialAnimation on scale {
             loops: Animation.Infinite
@@ -458,14 +473,15 @@ Rectangle {
             onPositionChanged: {
                 if (mouse.buttons === Qt.LeftButton) {
                     var delta = Math.round((startX - parent.x) / timeScale)
-                    var duration = startFadeOut + delta
+                    var duration = Math.max(0, startFadeOut + delta)
                     timeline.fadeOut(trackIndex, index, duration)
 
                     // Show fade duration as time in a "bubble" help.
-                    var s = timeline.timecode(Math.max(duration, 0))
+                    var s = application.timecode(duration)
                     bubbleHelp.show(clipRoot.x + clipRoot.width, trackRoot.y + clipRoot.height, s.substring(6))
                 }
             }
+            onDoubleClicked: timeline.fadeOut(trackIndex, index, (fadeOut > 0) ? 0 : Math.round(profile.fps))
         }
         SequentialAnimation on scale {
             loops: Animation.Infinite
@@ -629,6 +645,11 @@ Rectangle {
             id: mergeItem
             text: qsTr('Merge with next clip')
             onTriggered: timeline.mergeClipWithNext(trackIndex, index, false)
+        }
+        MenuItem {
+            visible: !isBlank && !isTransition && !isAudio
+            text: qsTr('Detach Audio')
+            onTriggered: timeline.detachAudio(trackIndex, index)
         }
         MenuItem {
             visible: !isBlank && !isTransition && settings.timelineShowWaveforms

@@ -42,11 +42,11 @@ X265_REVISION="origin/stable"
 LIBVPX_HEAD=1
 LIBVPX_REVISION=0
 ENABLE_LAME=1
-LIBOPUS_HEAD=1
-LIBOPUS_REVISION=
+LIBOPUS_HEAD=0
+LIBOPUS_REVISION=v1.2.1
 ENABLE_SWH_PLUGINS=1
 FFMPEG_HEAD=0
-FFMPEG_REVISION="origin/release/3.4"
+FFMPEG_REVISION="origin/release/4.0"
 FFMPEG_SUPPORT_H264=1
 FFMPEG_SUPPORT_H265=1
 FFMPEG_SUPPORT_LIBVPX=1
@@ -54,6 +54,8 @@ FFMPEG_SUPPORT_THEORA=1
 FFMPEG_SUPPORT_MP3=1
 FFMPEG_SUPPORT_FAAC=0
 FFMPEG_SUPPORT_OPUS=1
+FFMPEG_SUPPORT_NVENC=1
+FFMPEG_SUPPORT_AMF=1
 FFMPEG_ADDITIONAL_OPTIONS=
 ENABLE_VIDSTAB=1
 VIDSTAB_HEAD=1
@@ -73,7 +75,7 @@ QT_LIB_DIR=${QTDIR:+${QTDIR}/lib}
 MLT_DISABLE_SOX=0
 
 ################################################################################
-# Location of config file - if not overriden on command line
+# Location of config file - if not overridden on command line
 CONFIGFILE=build-shotcut.conf
 
 # If defined to 1, outputs trace log lines
@@ -198,6 +200,12 @@ function to_key {
     eigen)
       echo 14
     ;;
+    nv-codec-headers)
+      echo 15
+    ;;
+    AMF)
+      echo 16
+    ;;
     *)
       echo UNKNOWN
     ;;
@@ -285,7 +293,7 @@ function die {
   else
     echo "ERROR: $@"
   fi
-  feedback_result FAILURE "Some kind of error occured: $@"
+  feedback_result FAILURE "Some kind of error occurred: $@"
   exit -1
 }
 
@@ -380,6 +388,12 @@ function set_globals {
     if test "$FFMPEG_SUPPORT_OPUS" = 1 && test "$LIBOPUS_HEAD" = 1 -o "$LIBOPUS_REVISION" != ""; then
         SUBDIRS="opus $SUBDIRS"
     fi
+    if test "$FFMPEG_SUPPORT_NVENC" = 1 && test "$TARGET_OS" != "Darwin"; then
+        SUBDIRS="nv-codec-headers $SUBDIRS"
+    fi
+    if test "$FFMPEG_SUPPORT_AMF" = 1 && test "$TARGET_OS" != "Darwin" && test "$TARGET_OS" != "Linux"; then
+        SUBDIRS="AMF $SUBDIRS"
+    fi
     if test "$ENABLE_SWH_PLUGINS" = "1" && test "$TARGET_OS" = "Darwin"; then
         SUBDIRS="swh-plugins $SUBDIRS"
     fi
@@ -419,7 +433,7 @@ function set_globals {
   REPOLOCS[3]="git://repo.or.cz/x264.git"
   REPOLOCS[4]="https://chromium.googlesource.com/webm/libvpx.git"
   REPOLOCS[5]="git://github.com/ddennedy/movit.git"
-  REPOLOCS[6]="https://downloads.sourceforge.net/project/lame/lame/3.99/lame-3.99.5.tar.gz"
+  REPOLOCS[6]="https://ftp.osuosl.org/pub/blfs/conglomeration/lame/lame-3.99.5.tar.gz"
   REPOLOCS[7]="git://github.com/mltframework/shotcut.git"
   REPOLOCS[8]="http://ftp.us.debian.org/debian/pool/main/s/swh-plugins/swh-plugins_0.4.15+1.orig.tar.gz"
   REPOLOCS[9]="git://github.com/mltframework/webvfx.git"
@@ -428,6 +442,8 @@ function set_globals {
   REPOLOCS[12]="https://git.opus-codec.org/opus.git"
   REPOLOCS[13]="https://github.com/videolan/x265"
   REPOLOCS[14]="https://bitbucket.org/eigen/eigen/get/3.2.4.tar.gz"
+  REPOLOCS[15]="git://github.com/FFmpeg/nv-codec-headers.git"
+  REPOLOCS[16]="git://github.com/GPUOpen-LibrariesAndSDKs/AMF.git"
 
   # REPOTYPE Array holds the repo types. (Yes, this might be redundant, but easy for me)
   REPOTYPES[0]="git"
@@ -445,6 +461,8 @@ function set_globals {
   REPOTYPES[12]="git"
   REPOTYPES[13]="git"
   REPOTYPES[14]="http-tgz"
+  REPOTYPES[15]="git"
+  REPOTYPES[16]="git"
 
   # And, set up the revisions
   REVISIONS[0]=""
@@ -499,6 +517,8 @@ function set_globals {
     REVISIONS[13]="$X265_REVISION"
   fi
   REVISIONS[14]="eigen-eigen-10219c95fe65"
+  REVISIONS[15]=""
+  REVISIONS[16]=""
 
   # Figure out the number of cores in the system. Used both by make and startup script
   if test "$TARGET_OS" = "Darwin"; then
@@ -577,7 +597,7 @@ function set_globals {
 
   #####
   # ffmpeg
-  CONFIG[0]="./configure --prefix=$FINAL_INSTALL_DIR --disable-static --disable-doc --disable-ffserver --enable-gpl --enable-version3 --enable-shared --enable-runtime-cpudetect $CONFIGURE_DEBUG_FLAG"
+  CONFIG[0]="./configure --prefix=$FINAL_INSTALL_DIR --disable-static --disable-doc --enable-gpl --enable-version3 --enable-shared --enable-runtime-cpudetect $CONFIGURE_DEBUG_FLAG"
   if test 1 = "$FFMPEG_SUPPORT_THEORA" ; then
     CONFIG[0]="${CONFIG[0]} --enable-libtheora --enable-libvorbis"
   fi
@@ -611,6 +631,7 @@ function set_globals {
     CFLAGS_[0]="${CFLAGS_[0]} -I$FINAL_INSTALL_DIR/include/SDL2"
     LDFLAGS_[0]="$LDFLAGS"
   else
+    CONFIG[0]="${CONFIG[0]} --enable-libjack"
     LDFLAGS_[0]="-L$FINAL_INSTALL_DIR/lib $LDFLAGS"
   fi
   if test "$TARGET_OS" = "Darwin"; then
@@ -622,7 +643,7 @@ function set_globals {
 
   #####
   # mlt
-  CONFIG[1]="./configure --prefix=$FINAL_INSTALL_DIR --enable-gpl --enable-gpl3 --without-kde $CONFIGURE_DEBUG_FLAG"
+  CONFIG[1]="./configure --prefix=$FINAL_INSTALL_DIR --enable-gpl --enable-gpl3 --without-kde --disable-sdl $CONFIGURE_DEBUG_FLAG"
   # Remember, if adding more of these, to update the post-configure check.
   [ "$QT_INCLUDE_DIR" ] && CONFIG[1]="${CONFIG[1]} --qt-includedir=$QT_INCLUDE_DIR"
   [ "$QT_LIB_DIR" ] && CONFIG[1]="${CONFIG[1]} --qt-libdir=$QT_LIB_DIR"
@@ -640,6 +661,7 @@ function set_globals {
     LDFLAGS_[1]="${LDFLAGS_[1]} -L/opt/local/lib/libomp"
   fi
   [ "$TARGET_OS" = "Win32" -o "$TARGET_OS" = "Win64" ]  && CFLAGS_[1]="${CFLAGS_[1]} -I$FINAL_INSTALL_DIR/include/SDL2"
+  [ "$TARGET_OS" != "Win32" ] && CFLAGS_[1]="${CFLAGS_[1]} -DUSE_MLT_POOL"
   LDFLAGS_[1]="${LDFLAGS_[1]} -L$FINAL_INSTALL_DIR/lib $ASAN_LDFLAGS $LDFLAGS"
 
   ####
@@ -668,6 +690,8 @@ function set_globals {
   CONFIG[4]="./configure --prefix=$FINAL_INSTALL_DIR --enable-vp8 --enable-postproc --enable-multithread --enable-runtime-cpu-detect --disable-install-docs --disable-debug-libs --disable-examples --disable-unit-tests $CONFIGURE_DEBUG_FLAG"
   if test "$TARGET_OS" = "Linux" ; then
     CONFIG[4]="${CONFIG[4]} --enable-shared"
+  elif test "$TARGET_OS" = "Darwin" ; then
+    CONFIG[4]="${CONFIG[4]} --disable-avx512"
   elif test "$TARGET_OS" = "Win32" ; then
     CONFIG[4]="${CONFIG[4]} --target=x86-win32-gcc"
   elif test "$TARGET_OS" = "Win64" ; then
@@ -797,6 +821,14 @@ function set_globals {
   #######
   # eigen - no build required
   CONFIG[14]=""
+
+  #######
+  # nv-codec-headers
+  CONFIG[15]="sed -i s,/usr/local,$FINAL_INSTALL_DIR, Makefile"
+  
+  #######
+  # AMF - no build required
+  CONFIG[16]=""
 }
 
 ######################################################################
@@ -931,7 +963,7 @@ function prepare_feedback {
 #################################################################
 # check_abort
 # Function that checks if the user wanted to cancel what we are doing.
-# returns "stop" or "cont" as appropiate
+# returns "stop" or "cont" as appropriate
 function check_abort {
   # log "$ARG"
   echo
@@ -1209,7 +1241,7 @@ function get_subproject {
           REPOLOCURL=`svn --non-interactive info | grep URL | awk '{print $2}'`
           # Now, we have to be a bit clever here, because if the user originally checked it out using
           # https, we can not change to http. So, we check for https in the current URL
-          # Note, that beeing clever almost always fails at some point. But, at least we give it a try...
+          # Note, that being clever almost always fails at some point. But, at least we give it a try...
           if test "${REPOLOCURL:0:5}" = "https" ; then
               REPOLOC=${REPOLOC/http/https}
           fi
@@ -1281,7 +1313,7 @@ function get_all_sources {
     get_subproject $DIR
   done
   feedback_status Done getting all sources
-  if test "$TARGET_OS" = "Darwin" -a "$ARCHIVE" = "1" ; then
+  if test "$TARGET_OS" = "Linux" -a "$ARCHIVE" = "1" ; then
     feedback_status Making source archive
     cmd cd "$SOURCE_DIR"/..
     cat >src/README <<END_OF_SRC_README
@@ -1298,7 +1330,7 @@ more mundane dependencies. The rest like x264, x265, libvpx, lame, libopus,
 FFmpeg, and frei0r are provided by the script.
 
 For macOS, we rely upon macports to provide the dependencies:
-  port install ffmpeg libsamplerate libsdl sox glib2 jack
+  port install ffmpeg libsamplerate libsdl2 sox glib2 jack
 
 For Windows, see this page on the MLT wiki about getting pre-built
 dependencies from various sources on the Internet:
@@ -1307,8 +1339,6 @@ Except, now we build FFmpeg instead of using a pre-built copy.
 
 As for Shotcut itself, its really as simple as:
   mkdir build ; cd build ; qmake .. ; make
-There is no make install target at this time. Just copy the executable
-(Shotcut.app on macOS) where needed.
 
 Then, there is the app bundling so that dependencies can be located and Qt
 plugins included. For that you really need to see the build script; it
@@ -1324,7 +1354,7 @@ yourself, you do not need to do that. You can just let Shotcut use
 the macports dependencies in /opt/local.
 END_OF_SRC_README
     cmd mkdir -p "$INSTALL_DIR" 2> /dev/null
-    cmd tar -cjf "$INSTALL_DIR"/src.tar.bz2 src
+    cmd tar -cJf "$INSTALL_DIR"/src.tar.xz src --exclude-vcs
   fi
 }
 
@@ -1493,6 +1523,13 @@ function configure_compile_install_subproject {
     cd source
   fi
 
+  # Special hack for AMF
+  if test "AMF" = "$1" -a ! -d "$FINAL_INSTALL_DIR/include/AMF"; then
+    cmd rm -rf Thirdparty
+    cmd mkdir -p "$FINAL_INSTALL_DIR/include/AMF"
+    cmd cp -av "amf/public/include/." "$FINAL_INSTALL_DIR/include/AMF"
+  fi
+
   MYCONFIG=`lookup CONFIG $1`
   if test "$MYCONFIG" != ""; then
     cmd $MYCONFIG || die "Unable to configure $1"
@@ -1542,19 +1579,14 @@ function configure_compile_install_subproject {
     fi
   else
     if test "shotcut" = "$1" ; then
-      # Convert translations
-      if [ "$TARGET_OS" = "Win32" -o "$TARGET_OS" = "Win64" ]; then
-          cmd "$LRELEASE" src/src.pro
-      else
-          cmd "$QTDIR/bin/lrelease" src/src.pro
-      fi
       if test "$TARGET_OS" = "Win32" -o "$TARGET_OS" = "Win64" ; then
+        cmd make install
         cmd install -c -m 755 src/shotcut.exe "$FINAL_INSTALL_DIR"
         cmd install -c COPYING "$FINAL_INSTALL_DIR"
         if [ "$TARGET_OS" = "Win32" ]; then
-          cmd install -c scripts/shotcut.nsi "$FINAL_INSTALL_DIR"/..
+          cmd install -c packaging/windows/shotcut.nsi "$FINAL_INSTALL_DIR"/..
         else
-          sed 's/PROGRAMFILES/PROGRAMFILES64/' scripts/shotcut.nsi >"$FINAL_INSTALL_DIR"/../shotcut.nsi
+          sed 's/PROGRAMFILES/PROGRAMFILES64/' packaging/windows/shotcut.nsi >"$FINAL_INSTALL_DIR"/../shotcut.nsi
         fi
         cmd install -d "$FINAL_INSTALL_DIR"/share/translations
         cmd install -p -c translations/*.qm "$FINAL_INSTALL_DIR"/share/translations
@@ -1562,11 +1594,8 @@ function configure_compile_install_subproject {
         cmd cp -a src/qml "$FINAL_INSTALL_DIR"/share/shotcut
 
       elif test "$TARGET_OS" != "Darwin"; then
-        cmd install -c -m 755 src/shotcut "$FINAL_INSTALL_DIR"/bin
+        cmd make install
         cmd install -p -c COPYING "$FINAL_INSTALL_DIR"
-        cmd install -d "$FINAL_INSTALL_DIR"/share/shotcut/translations
-        cmd install -p -c translations/*.qm "$FINAL_INSTALL_DIR"/share/shotcut/translations
-        cmd cp -a src/qml "$FINAL_INSTALL_DIR"/share/shotcut
         cmd install -p -c "$QTDIR"/translations/qt_*.qm "$FINAL_INSTALL_DIR"/share/shotcut/translations
         cmd install -p -c "$QTDIR"/translations/qtbase_*.qm "$FINAL_INSTALL_DIR"/share/shotcut/translations
         cmd install -p -c "$QTDIR"/lib/libQt5{Concurrent,Core,Declarative,Gui,Multimedia,MultimediaQuick,MultimediaWidgets,Network,OpenGL,Positioning,PrintSupport,Qml,QmlParticles,Quick,QuickWidgets,Script,Sensors,Sql,Svg,V8,WebChannel,WebKit,WebKitWidgets,WebSockets,Widgets,Xml,XmlPatterns,X11Extras,DBus,XcbQpa}.so.5 "$FINAL_INSTALL_DIR"/lib
@@ -1881,7 +1910,7 @@ function deploy_win32
     cmd mv bin/qmelt.exe .
     cmd rm -rf bin include etc man manifest src *.txt
     cmd rm lib/*
-    cmd rm -rf lib/pkgconfig lib/gdk-pixbuf-2.0 lib/glib-2.0 lib/gtk-2.0
+    cmd rm -rf lib/cmake lib/pkgconfig lib/gdk-pixbuf-2.0 lib/glib-2.0 lib/gtk-2.0
     cmd rm -rf share/doc share/man share/ffmpeg/examples share/aclocal share/glib-2.0 share/gtk-2.0 share/gtk-doc share/themes share/locale
   fi
   cmd mv COPYING COPYING.txt
@@ -1900,8 +1929,7 @@ function deploy_win32
     fi
   fi
   cmd mkdir -p lib/qt5/sqldrivers
-  cmd cp -pr "$QTDIR"/plugins/{audio,iconengines,imageformats,mediaservice,platforms,generic,platforminputcontexts,platformthemes} lib/qt5
-  cmd cp -p  "$QTDIR"/plugins/sqldrivers/qsqlite.dll lib/qt5/sqldrivers
+  cmd cp -pr "$QTDIR"/plugins/{audio,iconengines,imageformats,mediaservice,platforms,generic,sqldrivers} lib/qt5
   cmd cp -pr "$QTDIR"/qml lib
   cmd cp -pr "$QTDIR"/translations/qt_*.qm share/translations
   cmd cp -pr "$QTDIR"/translations/qtbase_*.qm share/translations
@@ -1910,9 +1938,7 @@ function deploy_win32
     cmd rm lib/qt5/imageformats/qddsd.dll
     cmd rm lib/qt5/imageformats/qgifd.dll
     cmd rm lib/qt5/imageformats/qicod.dll
-    cmd rm lib/qt5/imageformats/qjp2d.dll
     cmd rm lib/qt5/imageformats/qjpegd.dll
-    cmd rm lib/qt5/imageformats/qmngd.dll
     cmd rm lib/qt5/imageformats/qsvgd.dll
     cmd rm lib/qt5/imageformats/qtgad.dll
     cmd rm lib/qt5/imageformats/qtiffd.dll
@@ -1923,6 +1949,7 @@ function deploy_win32
     cmd rm lib/qt5/platforms/qminimald.dll
     cmd rm lib/qt5/platforms/qoffscreend.dll
     cmd rm lib/qt5/platforms/qwindowsd.dll
+    cmd rm lib/qt5/sqldrivers/qsqlited.dll
 
     cmd rm lib/qml/QtLocation/declarative_locationd.dll
     cmd rm lib/qml/QtQml/StateMachine/qtqmlstatemachined.dll
@@ -1933,7 +1960,6 @@ function deploy_win32
     cmd rm lib/qml/QtWebKit/qmlwebkitplugind.dll
     cmd rm lib/qml/QtWebKit/experimental/qmlwebkitexperimentalplugind.dll
     cmd rm lib/qml/QtQuick.2/qtquick2plugind.dll
-    cmd rm lib/qml/Enginio/enginioplugind.dll
     cmd rm lib/qml/Qt/labs/settings/qmlsettingsplugind.dll
     cmd rm lib/qml/Qt/labs/folderlistmodel/qmlfolderlistmodelplugind.dll
     cmd rm lib/qml/QtWebSockets/declarative_qmlwebsocketsd.dll
@@ -1944,7 +1970,6 @@ function deploy_win32
     cmd rm lib/qml/QtQuick/Dialogs/dialogplugind.dll
     cmd rm lib/qml/QtQuick/Dialogs/Private/dialogsprivateplugind.dll
     cmd rm lib/qml/QtQuick/PrivateWidgets/widgetsplugind.dll
-    cmd rm lib/qml/QtQuick/Scene3D/qtquickscene3dplugind.dll
     cmd rm lib/qml/QtQuick/Layouts/qquicklayoutsplugind.dll
     cmd rm lib/qml/QtQuick/Controls/qtquickcontrolsplugind.dll
     cmd rm lib/qml/QtQuick/Controls/Styles/Flat/qtquickextrasflatplugind.dll
@@ -1955,9 +1980,6 @@ function deploy_win32
     cmd rm lib/qml/QtMultimedia/declarative_multimediad.dll
     cmd rm lib/qml/QtNfc/declarative_nfcd.dll
     cmd rm lib/qml/QtWebChannel/declarative_webchanneld.dll
-    cmd rm lib/qml/Qt3D/Renderer/quick3drendererplugind.dll
-    cmd rm lib/qml/Qt3D/quick3dcoreplugind.dll
-    cmd rm lib/qml/Qt3D/Input/quick3dinputplugind.dll
   fi
   if [ "$TARGET_OS" = "Win32" ]; then
     cmd tar -xJf "$HOME/swh-plugins-win32-0.4.15.tar.xz"
@@ -2078,28 +2100,19 @@ End-of-shotcut-wrapper
   chmod 755 $TMPFILE || die "Unable to make wrapper script executable"
   $SUDO cp $TMPFILE "$FINAL_INSTALL_DIR/shotcut" || die "Unable to create wrapper script - cp failed"
 
+  popd
+
   log Creating desktop file in $TMPFILE
-  cat > $TMPFILE <<End-of-desktop-file
-#!/usr/bin/env xdg-open
-[Desktop Entry]
-Type=Application
-Name=Shotcut
-Name[de]=Shotcut
-GenericName=Video Editor
-GenericName[de]=Video Bearbeitungsprogramm
-Comment=Video Editor
-Comment[de]=Programm zum Bearbeiten und Abspielen von Videodateien.
-Terminal=false
-Exec=sh -c "\$(dirname "%k")/Shotcut.app/shotcut "%F""
-Icon=applications-multimedia
-End-of-desktop-file
+  cp shotcut/packaging/linux/org.shotcut.Shotcut.desktop $TMPFILE
+  sed -i '1i #!/usr/bin/env xdg-open' $TMPFILE
+  sed -i 's|Exec=.*|Exec=sh -c "\$(dirname "%k")/Shotcut.app/shotcut "%F""|' $TMPFILE
+  sed -i 's|Icon=.*|Icon=applications-multimedia|' $TMPFILE
   if test 0 != $? ; then
     die "Unable to create desktop file"
   fi
   $SUDO cp $TMPFILE "$FINAL_INSTALL_DIR/../Shotcut.desktop" || die "Unable to create desktop file - cp failed"
 
   feedback_progress Done creating startup and environment script
-  popd
 
   cmd pushd "$INSTALL_DIR"
 

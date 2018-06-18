@@ -1,7 +1,5 @@
 /*
- * Copyright (c) 2014-2017 Meltytech, LLC
- * Author: Dan Dennedy <dan@dennedy.org>
- * Author: Brian Matherly <pez4brian@yahoo.com>
+ * Copyright (c) 2014-2018 Meltytech, LLC
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +36,6 @@ class QmlApplication : public QObject
     Q_PROPERTY(QColor toolTipBaseColor READ toolTipBaseColor NOTIFY paletteChanged)
     Q_PROPERTY(QColor toolTipTextColor READ toolTipTextColor NOTIFY paletteChanged)
     Q_PROPERTY(QString OS READ OS CONSTANT)
-    Q_PROPERTY(QString numericLocale READ numericLocale CONSTANT)
     Q_PROPERTY(QRect mainWinRect READ mainWinRect);
     Q_PROPERTY(bool hasFiltersOnClipboard READ hasFiltersOnClipboard NOTIFY filtersCopied)
 
@@ -50,11 +47,12 @@ public:
     static QColor toolTipBaseColor();
     static QColor toolTipTextColor();
     static QString OS();
-    static QString numericLocale();
     static QRect mainWinRect();
     static bool hasFiltersOnClipboard();
     Q_INVOKABLE static void copyFilters();
     Q_INVOKABLE static void pasteFilters();
+    Q_INVOKABLE static QString timecode(int frames);
+    Q_INVOKABLE static int audioChannels();
 
 signals:
     void paletteChanged();

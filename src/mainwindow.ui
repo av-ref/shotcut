@@ -83,6 +83,7 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
+    <addaction name="actionKeyboardShortcuts"/>
     <addaction name="actionUpgrade"/>
     <addaction name="actionFAQ"/>
     <addaction name="actionTutorials"/>
@@ -95,6 +96,14 @@
     <property name="title">
      <string>Settings</string>
     </property>
+    <widget class="QMenu" name="menuAudioChannels">
+     <property name="title">
+      <string>Audio Channels</string>
+     </property>
+     <addaction name="actionChannels1"/>
+     <addaction name="actionChannels2"/>
+     <addaction name="actionChannels6"/>
+    </widget>
     <widget class="QMenu" name="menuDeinterlacer">
      <property name="title">
       <string>Deinterlacer</string>
@@ -164,6 +173,7 @@
     <addaction name="actionProject"/>
     <addaction name="actionGPU"/>
     <addaction name="menuProfile"/>
+    <addaction name="menuAudioChannels"/>
     <addaction name="separator"/>
     <addaction name="actionPlayer"/>
     <addaction name="actionScrubAudio"/>
@@ -227,6 +237,7 @@
    <addaction name="actionPlaylist"/>
    <addaction name="actionHistory"/>
    <addaction name="actionFilters"/>
+   <addaction name="actionKeyframes"/>
    <addaction name="actionTimeline"/>
    <addaction name="actionEncode"/>
    <addaction name="actionFullscreen"/>
@@ -456,7 +467,34 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>GPU Processing (experimental)</string>
+    <string>GPU Effects (experimental)</string>
+   </property>
+   <property name="toolTip">
+    <string>Use GPU filters</string>
+   </property>
+  </action>
+  <action name="actionChannels1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>1 (mono)</string>
+   </property>
+  </action>
+  <action name="actionChannels2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>2 (stereo)</string>
+   </property>
+  </action>
+  <action name="actionChannels6">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>6 (5.1)</string>
    </property>
   </action>
   <action name="actionOneField">
@@ -833,12 +871,29 @@
     <string>Show</string>
    </property>
   </action>
+  <action name="actionKeyframes">
+   <property name="icon">
+    <iconset theme="chronometer" resource="../icons/resources.qrc">
+     <normaloff>:/icons/oxygen/32x32/actions/chronometer.png</normaloff>:/icons/oxygen/32x32/actions/chronometer.png</iconset>
+   </property>
+   <property name="text">
+    <string>Keyframes</string>
+   </property>
+   <property name="toolTip">
+    <string>Keyframes</string>
+   </property>
+  </action>
   <action name="actionNew">
    <property name="text">
     <string>New</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionKeyboardShortcuts">
+   <property name="text">
+    <string>Keyboard Shortcuts...</string>
    </property>
   </action>
  </widget>
